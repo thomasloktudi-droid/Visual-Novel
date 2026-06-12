@@ -43,6 +43,12 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
 
 /* ── BOÎTE DIALOGUE ── */
 #dialogue-box{position:relative;z-index:10;width:min(800px,94vw);margin-bottom:24px;background:var(--panel);border:1px solid var(--border);border-radius:var(--r);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 2px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(180,160,255,.08);cursor:pointer;overflow:hidden;transition:border-color .4s,box-shadow .4s;}
+.memory-panel{position:fixed;top:16px;left:16px;z-index:22;display:grid;gap:.55rem;width:min(280px,calc(100vw - 32px));padding:.8rem .9rem;border:1px solid var(--border);border-radius:14px;background:rgba(8,6,20,.8);backdrop-filter:blur(14px);box-shadow:0 12px 30px rgba(0,0,0,.25);}
+.memory-title{font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);}
+.memory-metric{display:grid;gap:.25rem;}
+.memory-metric span{font-size:.78rem;color:var(--muted);} 
+.memory-bar{height:7px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;}
+.memory-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent2),var(--accent));width:50%;transition:width .3s ease;}
 #dialogue-box::before{content:'';display:block;height:2px;background:linear-gradient(90deg,transparent 0%,var(--accent2) 30%,var(--accent) 60%,transparent 100%);opacity:.6;transition:background .4s;}
 #dialogue-header{padding:.55rem 1.1rem .1rem}
 #character-name{display:inline-block;font-family:Georgia,serif;font-size:.95rem;font-weight:normal;color:var(--name);letter-spacing:.08em;padding:.15rem 0;border-bottom:1.5px solid var(--accent2);min-width:50px;min-height:1.3em;opacity:.92;transition:color .3s,border-color .3s;}
@@ -58,52 +64,54 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
 #dialogue-box.narrator-mode::before{background:linear-gradient(90deg,transparent 0%,var(--narrator) 30%,#b8b6d0 60%,transparent 100%);}
 #dialogue-box.narrator-mode #character-name{color:var(--narrator);border-bottom-color:var(--narrator);font-style:italic;letter-spacing:.14em;}
 #dialogue-box.narrator-mode #dialogue-text{color:#c4c2da;font-style:italic;font-size:clamp(.88rem,1.8vw,.98rem);}
+#dialogue-box.emotion-high{box-shadow:0 0 0 1px rgba(184,159,255,.25),0 20px 60px rgba(140,100,255,.18);} 
+#dialogue-box.emotion-tension{border-color:rgba(255,150,164,.35);} 
+#dialogue-box.emotion-desire{border-color:rgba(255,195,110,.35);} 
 
 /* ── TOOLBAR ── */
 #toolbar{position:fixed;top:14px;right:14px;display:flex;gap:7px;z-index:20;}
 .tool-btn{padding:.35rem .85rem;font-size:.75rem;font-family:inherit;background:var(--panel);color:var(--muted);border:1px solid var(--border);border-radius:20px;cursor:pointer;backdrop-filter:blur(12px);transition:color .2s,border-color .2s;}
 .tool-btn:hover,.tool-btn.active{color:var(--accent);border-color:var(--accent2)}
 
-/* ── ÉDITEUR RAPIDE ── */
-#editor-panel{position:fixed;inset:0;z-index:60;background:rgba(5,4,12,.94);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:1rem;}
-.editor-card{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:0 20px 70px rgba(0,0,0,.45);}
-.editor-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.1rem;border-bottom:1px solid var(--border);}
-.editor-header h2{font-family:Georgia,serif;font-size:1rem;color:var(--name);}
-.editor-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;}
-.editor-close:hover{color:var(--text);}
-.editor-body{display:grid;gap:.8rem;padding:1rem 1.1rem 1.2rem;}
-.editor-row{display:grid;gap:.25rem;}
-.editor-row label{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
-.editor-row input,.editor-row textarea,.editor-row select{width:100%;padding:.7rem .8rem;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.04);color:var(--text);font:inherit;resize:vertical;}
-.editor-row textarea{min-height:110px;}
-.editor-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.2rem;}
-.editor-btn{padding:.6rem .95rem;border:1px solid var(--accent2);border-radius:999px;background:transparent;color:var(--accent);cursor:pointer;font:inherit;}
-.editor-btn:hover{background:rgba(140,100,255,.16);}
-.editor-hint{font-size:.82rem;color:var(--muted);line-height:1.6;}
-.editor-choice-list{display:grid;gap:.5rem;}
-.editor-choice-item{display:grid;grid-template-columns:1.3fr .7fr;gap:.5rem;}
-.editor-choice-item input{min-width:0;}
-.editor-manager{display:grid;grid-template-columns:1.05fr .95fr;gap:1rem;}
-.editor-column{display:grid;gap:.75rem;}
-.editor-list,.editor-tree{max-height:260px;overflow:auto;padding-right:.2rem;display:grid;gap:.5rem;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.03);padding:.65rem;}
-.editor-scene-item{display:flex;flex-direction:column;gap:.2rem;text-align:left;padding:.65rem .7rem;border:1px solid transparent;border-radius:10px;background:rgba(255,255,255,.03);color:var(--text);cursor:pointer;}
-.editor-scene-item strong{font-size:.86rem;color:var(--name);} 
-.editor-scene-item span{font-size:.78rem;color:var(--muted);} 
-.editor-scene-item:hover,.editor-scene-item.selected{border-color:var(--accent2);background:rgba(140,100,255,.13);} 
-.editor-empty,.tree-empty{font-size:.82rem;color:var(--muted);padding:.4rem 0;}
-.tree-list{display:grid;gap:.7rem;}
-.tree-node{position:relative;display:flex;flex-direction:column;gap:.2rem;padding:.65rem .75rem;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.03);} 
-.tree-node::before{content:'';position:absolute;left:-.55rem;top:50%;width:.55rem;height:1px;background:var(--accent2);transform:translateY(-50%);} 
-.tree-node strong{font-size:.8rem;color:var(--name);} 
-.tree-node span{font-size:.75rem;color:var(--muted);} 
-.tree-branches{display:grid;gap:.35rem;margin-left:1rem;padding-left:.8rem;border-left:1px dashed var(--accent2);position:relative;} 
-.tree-branches::before{content:'';position:absolute;left:-1px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--accent2),transparent);} 
-.tree-branch{font-size:.76rem;color:var(--muted);padding:.25rem 0;position:relative;padding-left:.45rem;} 
-.tree-branch::before{content:'↳';position:absolute;left:0;top:0;color:var(--accent);} 
-.tree-root{padding-left:0;}
-.tree-root .tree-node::before{display:none;}
-@media (max-width: 860px){.editor-manager{grid-template-columns:1fr;}}
-@media (max-width: 640px){.editor-choice-item{grid-template-columns:1fr;}}
+/* ── PAGE D’ACCUEIL ── */
+#title-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;background:#0a0910;overflow:hidden;}
+#title-screen::before{content:'';position:absolute;inset:0;background-image:radial-gradient(1px 1px at 20% 15%,#fff 0%,transparent 100%),radial-gradient(1px 1px at 55% 40%,rgba(255,255,255,.7) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 80% 20%,#fff 0%,transparent 100%),radial-gradient(1px 1px at 35% 70%,rgba(255,255,255,.5) 0%,transparent 100%),radial-gradient(1px 1px at 65% 80%,rgba(255,255,255,.6) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 10% 55%,#fff 0%,transparent 100%),radial-gradient(1px 1px at 90% 60%,rgba(255,255,255,.4) 0%,transparent 100%),radial-gradient(1px 1px at 45% 25%,rgba(255,255,255,.8) 0%,transparent 100%),radial-gradient(1px 1px at 75% 50%,rgba(255,255,255,.5) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 25% 85%,#fff 0%,transparent 100%),radial-gradient(1px 1px at 5% 30%,rgba(255,255,255,.6) 0%,transparent 100%),radial-gradient(1px 1px at 92% 38%,rgba(255,255,255,.5) 0%,transparent 100%),radial-gradient(1px 1px at 48% 92%,rgba(255,255,255,.4) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 60% 10%,#fff 0%,transparent 100%),radial-gradient(1px 1px at 15% 45%,rgba(255,255,255,.7) 0%,transparent 100%);pointer-events:none;}
+#title-screen::after{content:'';position:absolute;width:700px;height:420px;top:50%;left:50%;transform:translate(-50%,-60%);background:radial-gradient(ellipse,rgba(120,80,220,0.22) 0%,transparent 70%);pointer-events:none;}
+.title-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1rem;animation:fadeUp .9s ease both;padding:2rem;max-width:560px;text-align:center;}
+.title-deco{display:flex;align-items:center;gap:12px;margin-bottom:.4rem;}
+.title-deco span{display:block;height:1px;width:60px;background:linear-gradient(90deg,transparent,var(--accent2));}
+.title-deco span:last-child{background:linear-gradient(90deg,var(--accent2),transparent);}
+.title-deco i{font-size:16px;color:var(--accent2);letter-spacing:.2em;}
+#game-title{font-family:Georgia,serif;font-size:clamp(2.4rem,6vw,4.2rem);font-weight:normal;letter-spacing:.1em;color:var(--name);text-shadow:0 0 60px rgba(160,120,255,.4);line-height:1.1;}
+#game-subtitle{font-size:.95rem;color:var(--muted);letter-spacing:.22em;text-transform:uppercase;}
+.title-sep{width:1px;height:40px;background:linear-gradient(to bottom,transparent,var(--border),transparent);margin:.2rem 0;}
+.title-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:.8rem;margin-top:.2rem;}
+.title-btn{padding:.8rem 1.25rem;border:1px solid var(--accent2);border-radius:999px;background:transparent;color:var(--accent);cursor:pointer;font:inherit;letter-spacing:.08em;text-transform:uppercase;transition:all .2s ease;}
+.title-btn:hover{background:rgba(140,100,255,.16);box-shadow:0 0 24px rgba(140,100,255,.25);transform:translateY(-1px);}
+.title-btn.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;border-color:transparent;}
+.title-btn.primary:hover{background:linear-gradient(135deg,var(--accent),var(--accent2));}
+.title-btn.secondary{color:var(--text);}
+.title-hint{font-size:.8rem;color:var(--muted);margin-top:.2rem;}
+
+/* ── PARAMÈTRES ── */
+#settings-panel{position:fixed;inset:0;z-index:250;background:rgba(6,5,14,.94);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:1rem;}
+.settings-card{width:min(500px,100%);background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:1.1rem;box-shadow:0 22px 80px rgba(0,0,0,.45);}
+.settings-card h2{font-family:Georgia,serif;font-size:1rem;color:var(--name);margin-bottom:.8rem;}
+.setting-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.setting-row:last-child{border-bottom:none;}
+.setting-label{font-size:.9rem;color:var(--text);} 
+.setting-value{display:flex;align-items:center;gap:.7rem;color:var(--muted);} 
+input[type="range"]{accent-color:var(--accent2);} 
+.toggle{position:relative;width:44px;height:24px;display:inline-block;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle span{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.12);cursor:pointer;transition:.2s;}
+.toggle span::before{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;}
+.toggle input:checked + span{background:var(--accent2);} 
+.toggle input:checked + span::before{transform:translateX(20px);} 
+.settings-actions{display:flex;justify-content:flex-end;gap:.7rem;margin-top:.9rem;}
+.settings-btn{padding:.65rem .95rem;border:1px solid var(--border);border-radius:999px;background:transparent;color:var(--text);cursor:pointer;font:inherit;}
+.settings-btn.primary{border-color:var(--accent2);color:var(--accent);} 
+.settings-btn:hover{background:rgba(140,100,255,.12);} 
 
 /* ── LOG ── */
 #log-panel{position:fixed;inset:0;z-index:50;background:rgba(8,6,20,.96);backdrop-filter:blur(22px);display:flex;flex-direction:column;animation:fadeUp .2s ease both;}
@@ -132,8 +140,37 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
 }
 #end-desc{
   font-size:.95rem;color:var(--muted);line-height:1.8;
-  max-width:520px;margin-bottom:2rem;
+  max-width:520px;margin-bottom:1.2rem;
 }
+.branch-tree{
+  width:min(720px,100%);
+  margin:0 0 1.4rem;
+  padding:1rem;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:rgba(255,255,255,.03);
+  display:grid;
+  gap:.7rem;
+  text-align:left;
+}
+.branch-tree-header{display:grid;gap:.25rem;margin-bottom:.2rem;}
+.branch-tree-header h3{font-family:Georgia,serif;font-size:1rem;color:var(--name);}
+.branch-tree-header p{font-size:.8rem;color:var(--muted);line-height:1.5;}
+.branch-node{
+  padding:.8rem .9rem;
+  border-radius:12px;
+  background:rgba(140,100,255,.08);
+  border:1px solid rgba(184,159,255,.16);
+  display:grid;
+  gap:.45rem;
+}
+.branch-node.alt{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08);opacity:.75;}
+.branch-node-label{font-size:.73rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);}
+.branch-node-title{font-size:.95rem;color:var(--text);font-weight:600;}
+.branch-node-desc{font-size:.82rem;color:var(--muted);line-height:1.5;}
+.branch-node-choice{padding:.5rem .65rem;border-radius:10px;background:rgba(255,255,255,.05);color:var(--text);font-size:.86rem;}
+.branch-node-choice.current{background:linear-gradient(135deg,rgba(184,159,255,.24),rgba(124,92,204,.18));border:1px solid rgba(184,159,255,.3);} 
+.branch-node-choice.alt{color:rgba(255,255,255,.45);background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);} 
 #btn-end-restart{
   padding:.7rem 2.4rem;font-size:.85rem;font-family:inherit;
   letter-spacing:.14em;text-transform:uppercase;
@@ -156,10 +193,34 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
 <div id="title-screen">
   <div class="title-inner">
     <div class="title-deco"><span></span><i>✦</i><span></span></div>
+    <div id="hero-badge">Narration à mémoire émotionnelle</div>
     <h1 id="game-title">Cercle Vicieux</h1>
     <p id="game-subtitle">Une histoire d'amour qui ne devrait pas en être une</p>
     <div class="title-sep"></div>
-    <button id="btn-start"><span>▶ Commencer</span></button>
+    <div class="title-actions">
+      <button id="btn-start" class="title-btn primary" type="button">▶ Jouer</button>
+      <button id="btn-load-title" class="title-btn secondary" type="button">📂 Charger une partie</button>
+      <button id="btn-settings" class="title-btn secondary" type="button">⚙️ Paramètres</button>
+    </div>
+    <p id="title-hint" class="title-hint">Une expérience plus douce, plus sonore et plus vivante.</p>
+  </div>
+</div>
+
+<div id="settings-panel" class="hidden">
+  <div class="settings-card">
+    <h2>Paramètres</h2>
+    <div class="setting-row">
+      <span class="setting-label">Volume musique</span>
+      <div class="setting-value"><input id="music-volume" type="range" min="0" max="1" step="0.05" value="0.35" /></div>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">Plein écran</span>
+      <label class="toggle"><input id="fullscreen-toggle" type="checkbox" /><span></span></label>
+    </div>
+    <div class="settings-actions">
+      <button id="btn-close-settings" class="settings-btn" type="button">Fermer</button>
+      <button id="btn-apply-settings" class="settings-btn primary" type="button">Appliquer</button>
+    </div>
   </div>
 </div>
 
@@ -175,11 +236,16 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
     </div>
     <div id="choices-container" class="hidden"></div>
   </div>
+  <div id="memory-panel" class="memory-panel hidden">
+    <div class="memory-title">Résonance émotionnelle</div>
+    <div class="memory-metric"><span>Confiance</span><div class="memory-bar"><i id="memory-trust"></i></div></div>
+    <div class="memory-metric"><span>Tension</span><div class="memory-bar"><i id="memory-tension"></i></div></div>
+    <div class="memory-metric"><span>Désir</span><div class="memory-bar"><i id="memory-desire"></i></div></div>
+  </div>
   <div id="toolbar">
     <button class="tool-btn" id="btn-auto">⏵ Auto</button>
     <button class="tool-btn" id="btn-skip">⏭ Passer</button>
     <button class="tool-btn" id="btn-log">📜 Log</button>
-    <button class="tool-btn" id="btn-editor">✎ Éditeur</button>
     <button class="tool-btn" id="btn-save">💾 Save</button>
     <button class="tool-btn" id="btn-load">📂 Load</button>
   </div>
@@ -189,84 +255,11 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
   </div>
 </div>
 
-<div id="editor-panel" class="hidden">
-  <div class="editor-card">
-    <div class="editor-header">
-      <h2>Éditeur rapide</h2>
-      <button id="btn-close-editor" class="editor-close" type="button">✕</button>
-    </div>
-    <div class="editor-body">
-      <div class="editor-manager">
-        <div class="editor-column">
-          <div class="editor-row">
-            <label>Scènes du scénario</label>
-            <div id="editor-scene-list" class="editor-list"></div>
-          </div>
-        </div>
-        <div class="editor-column">
-          <div class="editor-row">
-            <label>Arbre du scénario</label>
-            <div id="editor-tree-view" class="editor-tree"></div>
-          </div>
-        </div>
-      </div>
-      <div class="editor-row">
-        <label for="editor-type">Type de scène</label>
-        <select id="editor-type">
-          <option value="dialogue">Dialogue</option>
-          <option value="choice">Choix</option>
-          <option value="end">Fin</option>
-        </select>
-      </div>
-      <div class="editor-row">
-        <label for="editor-id">ID de la scène</label>
-        <input id="editor-id" placeholder="ex : suite_01" />
-      </div>
-      <div id="editor-character-row" class="editor-row">
-        <label for="editor-character">Personnage</label>
-        <input id="editor-character" placeholder="Lou, Narrateur..." />
-      </div>
-      <div id="editor-image-row" class="editor-row">
-        <label for="editor-image">Image (URL)</label>
-        <input id="editor-image" placeholder="https://..." />
-      </div>
-      <div id="editor-background-row" class="editor-row">
-        <label for="editor-background">Fond (URL)</label>
-        <input id="editor-background" placeholder="https://..." />
-      </div>
-      <div id="editor-text-block" class="editor-row">
-        <label for="editor-text">Texte</label>
-        <textarea id="editor-text" placeholder="Écris ici le dialogue ou la narration..."></textarea>
-      </div>
-      <div id="editor-end-block" class="editor-row hidden">
-        <label for="editor-title">Titre de la fin</label>
-        <input id="editor-title" placeholder="Titre de la fin..." />
-      </div>
-      <div id="editor-end-desc-block" class="editor-row hidden">
-        <label for="editor-desc">Description de la fin</label>
-        <textarea id="editor-desc" placeholder="Explique ce que montre la fin..."></textarea>
-      </div>
-      <div id="editor-choice-block" class="editor-row hidden">
-        <label for="editor-choices">Choix (1 par ligne : "Label | nextId")</label>
-        <textarea id="editor-choices" placeholder="Ex : Je reste | suite_rest&#10;Je pars | suite_part"></textarea>
-      </div>
-      <div class="editor-actions">
-        <button id="btn-save-scene" class="editor-btn" type="button">Enregistrer la scène</button>
-        <button id="btn-new-scene" class="editor-btn" type="button">Nouvelle scène</button>
-        <button id="btn-add-scene" class="editor-btn" type="button">Ajouter après la scène courante</button>
-        <button id="btn-add-scene-end" class="editor-btn" type="button">Ajouter à la fin</button>
-        <button id="btn-delete-scene" class="editor-btn" type="button">Supprimer la scène</button>
-        <button id="btn-sync-story" class="editor-btn" type="button">🔄 Synchroniser</button>
-      </div>
-      <p id="editor-status" class="editor-hint">Les scènes modifiées sont enregistrées sur le serveur du projet.</p>
-    </div>
-  </div>
-</div>
-
 <!-- ÉCRAN DE FIN -->
 <div id="end-screen" class="hidden">
   <h1 id="end-title"></h1>
   <p id="end-desc"></p>
+  <div id="end-branch-tree" class="branch-tree"></div>
   <button id="btn-end-restart"><span>Recommencer</span></button>
 </div>
 
@@ -316,6 +309,37 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
 //  → affiche l'écran de fin avec titre + description, puis
 //    propose de recommencer.
 // ════════════════════════════════════════════════════════════
+
+function makeScene({ id, type='dialogue', character='Lou', text='Placeholder', image='', background='', choices=[] }){
+  const scene = { id, type, character, image, background };
+  if(type === 'choice') scene.choices = choices;
+  else scene.text = text;
+  return scene;
+}
+
+function makePlaceholderScene(id, overrides = {}){
+  return makeScene({
+    id,
+    type: overrides.type || 'dialogue',
+    character: overrides.character || 'Lou',
+    image: overrides.image || 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80',
+    background: overrides.background || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80',
+    text: overrides.text || 'Placeholder dialogue',
+    choices: overrides.choices || [],
+  });
+}
+
+function makePlaceholderScenes(prefix, count, overrides = {}){
+  return Array.from({ length: count }, (_, i) => makePlaceholderScene(`${prefix}_${i + 1}`, overrides));
+}
+
+function d(id, text, character='Lou', image='https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80', background='https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80'){
+  return makeScene({ id, type:'dialogue', character, image, background, text });
+}
+
+function c(id, choices, character='Lou', image='https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80', background='https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80'){
+  return makeScene({ id, type:'choice', character, image, background, choices });
+}
 
 const defaultStory = [
 
@@ -379,9 +403,9 @@ const defaultStory = [
   {
     id:"choix_reaction_1", type:"choice",
     choices:[
-      { label:"« Pardon… je vais faire attention. »", next:"reac_excuse" },
-      { label:"« Je ne te dois pas d'explication pour chaque silence. »", next:"reac_recul" },
-      { label:"« Désolé, j'étais occupé, c'est tout. »", next:"reac_neutre" },
+      { label:"« Pardon… je vais faire attention. »", next:"reac_excuse", impact:{trust:1} },
+      { label:"« Je ne te dois pas d'explication pour chaque silence. »", next:"reac_recul", impact:{tension:1} },
+      { label:"« Désolé, j'étais occupé, c'est tout. »", next:"reac_neutre", impact:{desire:1} },
     ]
   },
   {
@@ -408,7 +432,13 @@ const defaultStory = [
   {
     id:"narrateur_apres_choix1", type:"dialogue",
     character:"Narrateur-ext", image:"", background:"",
-    text:"Quelle que soit la réponse, la soirée continue. C'est souvent ainsi : la tension retombe, sans jamais vraiment se résoudre."
+    text:"Quelle que soit la réponse, la soirée continue. C'est souvent ainsi : la tension retombe, sans jamais vraiment se résoudre.",
+    textVariants:{
+      base:"Quelle que soit la réponse, la soirée continue. C'est souvent ainsi : la tension retombe, sans jamais vraiment se résoudre.",
+      trust:"La douceur de votre échange demeure un instant suspendue, comme si la confiance avait déposé une lumière dans la pièce.",
+      tension:"La tension ne part pas vraiment. Elle se glisse dans le silence, plus lourde, plus présente que tout le reste.",
+      desire:"Le désir se fait plus visible, comme une chaleur qui n'a plus besoin d'être nommée."
+    }
   },
 
   // ── SCÈNE COMMUNE — Lou propose de se voir ───────────────
@@ -425,13 +455,65 @@ const defaultStory = [
     text:"« Ça nous fera du bien. » Une proposition qui ressemble à une question, mais qui n'en est pas vraiment une."
   },
 
-  // ── CHOIX 2 : BRANCHE STRUCTURELLE ───────────────────────
-  //  Deux fils narratifs réellement différents.
+  // ── SÉQUENCE DE QUESTIONS À SCORE ───────────────────────
   {
-    id:"choix_branche_1", type:"choice",
+    id:"questionnaire_intro", type:"dialogue",
+    character:"Lou",
+    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+    background:"",
+    text:"Je veux te poser quelques questions. Pas pour te juger, juste pour comprendre comment tu vois tout ça."
+  },
+  {
+    id:"question_1", type:"choice",
     choices:[
-      { label:"« D'accord, je te rejoins. »", next:"branche_accepte_1" },
-      { label:"« Pas ce soir, je suis épuisé(e). »", next:"branche_refuse_1" },
+      { label:"Je préfère être honnête avec toi.", next:"question_2", score:2 },
+      { label:"Je ne sais pas encore quoi répondre.", next:"question_2", score:0 },
+      { label:"Je ne veux pas trop m'exposer.", next:"question_2", score:-1 },
+    ]
+  },
+  {
+    id:"question_2", type:"choice",
+    choices:[
+      { label:"Tu peux compter sur moi.", next:"question_3", score:2 },
+      { label:"Je suis là, mais je reste prudent.", next:"question_3", score:1 },
+      { label:"Je préfère garder mes distances.", next:"question_3", score:-1 },
+    ]
+  },
+  {
+    id:"question_3", type:"choice",
+    choices:[
+      { label:"Je veux comprendre ce qui se passe vraiment.", next:"question_4", score:2 },
+      { label:"Je veux juste qu'on en parle calmement.", next:"question_4", score:1 },
+      { label:"Je n'aime pas quand ça devient trop lourd.", next:"question_4", score:-1 },
+    ]
+  },
+  {
+    id:"question_4", type:"choice",
+    choices:[
+      { label:"Je t'écoute sans détour.", next:"question_5", score:2 },
+      { label:"Je t'écoute, mais je me méfie.", next:"question_5", score:0 },
+      { label:"Je préfère qu'on change de sujet.", next:"question_5", score:-2 },
+    ]
+  },
+  {
+    id:"question_5", type:"choice",
+    choices:[
+      { label:"Je veux rester près de toi.", next:"question_result", score:2 },
+      { label:"Je veux voir ce qui va arriver.", next:"question_result", score:1 },
+      { label:"Je veux juste garder le contrôle.", next:"question_result", score:-1 },
+    ]
+  },
+  {
+    id:"question_result", type:"dialogue",
+    character:"Narrateur-ext", image:"", background:"",
+    text:"Le dernier silence retient tout ce qui a été dit. La suite dépend maintenant du poids de chaque réponse."
+  },
+  {
+    id:"question_branch", type:"choice",
+    choices:[
+      { label:"Continuer vers la branche tendre", next:"branche_accepte_1" },
+      { label:"Continuer vers la branche ambiguë", next:"branche_refuse_1" },
+      { label:"Continuer vers la branche froide", next:"branche_refuse_1" },
     ]
   },
 
@@ -537,6 +619,9 @@ const defaultStory = [
     title:"Le silence qui suit",
     desc:"Pour ce soir, vous avez tenu votre position. Le silence qui s'installe n'est pas léger — mais pour une fois, il vous appartient. Demain, la conversation reprendra probablement comme si de rien n'était. Ou pas."
   },
+  ...makePlaceholderScenes('placeholder_a', 40, { character:'Lou', text:'Placeholder dialogue' }),
+  ...makePlaceholderScenes('placeholder_b', 30, { character:'Narrateur-ext', text:'Placeholder narration', image:'', background:'' }),
+  ...makePlaceholderScenes('placeholder_c', 30, { character:'Lou', text:'Placeholder dialogue' }),
 ];
 
 const storyStorageKey = 'vn_story';
@@ -546,7 +631,7 @@ async function loadStoryData(){
     const response = await fetch('/api/story', { cache: 'no-store' });
     if(response.ok){
       const fromServer = await response.json();
-      if(Array.isArray(fromServer) && fromServer.length){
+      if(Array.isArray(fromServer) && fromServer.length > 3){
         localStorage.setItem(storyStorageKey, JSON.stringify(fromServer));
         return fromServer;
       }
@@ -598,7 +683,7 @@ initStory();
 
 // État du jeu
 const state = {
-  index:0, autoMode:false, autoTimer:null, typeTimer:null, isTyping:false, log:[],
+  index:0, autoMode:false, autoTimer:null, typeTimer:null, isTyping:false, log:[], memory:{trust:0,tension:0,desire:0}, quizScore:0, branchPath:[],
 };
 
 // ── DOM ──
@@ -614,37 +699,19 @@ const dChoice  = el('choices-container');
 const logPanel = el('log-panel');
 const logList  = el('log-entries');
 const btnAuto  = el('btn-auto');
-const btnEditor= el('btn-editor');
 const btnSave  = el('btn-save');
 const btnLoad  = el('btn-load');
 const endScreen = el('end-screen');
-const editorPanel = el('editor-panel');
-const btnCloseEditor = el('btn-close-editor');
-const btnSaveScene = el('btn-save-scene');
-const btnNewScene = el('btn-new-scene');
-const btnAddScene = el('btn-add-scene');
-const btnAddSceneEnd = el('btn-add-scene-end');
-const btnDeleteScene = el('btn-delete-scene');
-const btnSyncStory = el('btn-sync-story');
-const editorType = el('editor-type');
-const editorId = el('editor-id');
-const editorCharacter = el('editor-character');
-const editorImage = el('editor-image');
-const editorBackground = el('editor-background');
-const editorText = el('editor-text');
-const editorTitle = el('editor-title');
-const editorDesc = el('editor-desc');
-const editorChoices = el('editor-choices');
-const editorChoiceBlock = el('editor-choice-block');
-const editorEndBlock = el('editor-end-block');
-const editorEndDescBlock = el('editor-end-desc-block');
-const editorTextBlock = el('editor-text-block');
-const editorCharacterRow = el('editor-character-row');
-const editorImageRow = el('editor-image-row');
-const editorBackgroundRow = el('editor-background-row');
-const editorSceneList = el('editor-scene-list');
-const editorTreeView = el('editor-tree-view');
-const editorStatus = el('editor-status');
+const memoryPanel = el('memory-panel');
+const memoryTrust = el('memory-trust');
+const memoryTension = el('memory-tension');
+const memoryDesire = el('memory-desire');
+const settingsPanel = el('settings-panel');
+const btnSettings = el('btn-settings');
+const btnCloseSettings = el('btn-close-settings');
+const btnApplySettings = el('btn-apply-settings');
+const musicVolumeInput = el('music-volume');
+const fullscreenToggle = el('fullscreen-toggle');
 
 // ── Navigation ──
 function go(indexOrId){
@@ -657,7 +724,92 @@ function go(indexOrId){
   if(s.type==='end')      showEnd(s);
 }
 
+function updateMemoryUI(){
+  const values = state.memory;
+  const max = 3;
+  const pct = v => Math.min(100, Math.max(8, ((v + max) / (max * 2)) * 100));
+  memoryTrust.style.width = `${pct(values.trust)}%`;
+  memoryTension.style.width = `${pct(values.tension)}%`;
+  memoryDesire.style.width = `${pct(values.desire)}%`;
+  memoryPanel.classList.toggle('hidden', false);
+
+  const mood = values.trust >= 2 ? 'emotion-high' : values.tension >= 2 ? 'emotion-tension' : values.desire >= 2 ? 'emotion-desire' : '';
+  dBox.classList.remove('emotion-high','emotion-tension','emotion-desire');
+  if(mood) dBox.classList.add(mood);
+}
+
+function applyChoiceImpact(choice){
+  if(!choice?.impact) return;
+  Object.entries(choice.impact).forEach(([key, value]) => {
+    state.memory[key] = Math.max(-3, Math.min(3, (state.memory[key] || 0) + value));
+  });
+  updateMemoryUI();
+}
+
+function resolveSceneText(s){
+  if(s.textVariants){
+    const values = state.memory;
+    if(values.trust >= 2 && s.textVariants.trust) return s.textVariants.trust;
+    if(values.tension >= 2 && s.textVariants.tension) return s.textVariants.tension;
+    if(values.desire >= 2 && s.textVariants.desire) return s.textVariants.desire;
+    return s.textVariants.base || s.text || '';
+  }
+  return s.text || '';
+}
+
+function describeBranchStep(step){
+  if(step?.title) return step.title;
+  if(step?.id?.startsWith('question_')) return `Question ${step.id.replace('question_', '')}`;
+  if(step?.id==='question_branch') return 'Branche finale';
+  return (step?.id || '').replace(/_/g, ' ');
+}
+
+function escapeBranchText(value){
+  return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderBranchTree(){
+  const container = el('end-branch-tree');
+  if(!state.branchPath.length){
+    container.innerHTML = '<div class="branch-node alt"><div class="branch-node-label">Arbre de branche</div><div class="branch-node-desc">Le parcours joué apparaîtra ici à la fin de la partie.</div></div>';
+    return;
+  }
+
+  const currentEnd = [...state.branchPath].reverse().find(step => step.isEnd);
+  const otherEndings = story.filter(s => s.type === 'end' && s.id !== currentEnd?.id);
+
+  let html = '<div class="branch-tree-header"><h3>Arbre de branche</h3><p>Le chemin joué est mis en valeur ; les autres options restent grisées pour préserver la surprise.</p></div>';
+
+  state.branchPath.forEach(step => {
+    if(step.isEnd){
+      html += `<div class="branch-node current"><div class="branch-node-label">Fin atteinte</div><div class="branch-node-title">${escapeBranchText(step.title)}</div><div class="branch-node-desc">${escapeBranchText(step.desc)}</div></div>`;
+      return;
+    }
+
+    html += `<div class="branch-node"><div class="branch-node-label">${escapeBranchText(describeBranchStep(step))}</div><div class="branch-node-choice current">${escapeBranchText(step.selectedLabel)}</div>`;
+    (step.options || []).filter(option => option !== step.selectedLabel).forEach(option => {
+      html += `<div class="branch-node-choice alt">${escapeBranchText(option)}</div>`;
+    });
+    html += '</div>';
+  });
+
+  if(otherEndings.length){
+    html += '<div class="branch-node alt"><div class="branch-node-label">Autres fins possibles</div>';
+    otherEndings.forEach(end => {
+      html += `<div class="branch-node-choice alt">${escapeBranchText(end.title)}</div>`;
+    });
+    html += '</div>';
+  }
+
+  container.innerHTML = html;
+}
+
 function showDialogue(s){
+  if(s.id==='question_result'){
+    const scoreLabel = state.quizScore >= 6 ? 'tendre' : state.quizScore >= 3 ? 'ambigüe' : 'froide';
+    dText.textContent = `${s.text}\n\nÉvaluation du moment : ${scoreLabel.toUpperCase()} (score ${state.quizScore})`;
+    return;
+  }
   dChoice.classList.add('hidden');
   dArrow.style.display='';
   if(s.background) bg.style.backgroundImage=`url('${s.background}')`;
@@ -668,8 +820,9 @@ function showDialogue(s){
   dBox.classList.toggle('narrator-mode', isNarrator);
   dName.textContent = isNarrator ? 'Voix extérieure' : (s.character||'');
 
-  typeText(s.text,()=>{ if(state.autoMode) state.autoTimer=setTimeout(advance,2200); });
-  if(s.text) state.log.push({name: isNarrator ? 'Voix extérieure' : (s.character||'Narrateur'), line:s.text, narrator:isNarrator});
+  const displayText = resolveSceneText(s);
+  typeText(displayText,()=>{ if(state.autoMode) state.autoTimer=setTimeout(advance,2200); });
+  if(displayText) state.log.push({name: isNarrator ? 'Voix extérieure' : (s.character||'Narrateur'), line:displayText, narrator:isNarrator});
 }
 
 function showChoices(s){
@@ -682,6 +835,19 @@ function showChoices(s){
     b.textContent=c.label;
     b.onclick=()=>{
       dChoice.classList.add('hidden');
+      applyChoiceImpact(c);
+      if(typeof c.score==='number') state.quizScore += c.score;
+      state.branchPath.push({
+        id:s.id,
+        selectedLabel:c.label,
+        options:s.choices.map(choice => choice.label),
+        isEnd:false,
+      });
+      if(s.id==='question_branch'){
+        const branch = state.quizScore >= 6 ? 'branche_accepte_1' : state.quizScore >= 3 ? 'branche_refuse_1' : 'branche_refuse_1';
+        go(branch);
+        return;
+      }
       go(c.next);
     };
     dChoice.appendChild(b);
@@ -689,8 +855,12 @@ function showChoices(s){
 }
 
 function showEnd(s){
+  if(!state.branchPath.some(step => step.isEnd && step.id === s.id)){
+    state.branchPath.push({ id:s.id, title:s.title, desc:s.desc, isEnd:true });
+  }
   el('end-title').textContent = s.title;
   el('end-desc').textContent = s.desc;
+  renderBranchTree();
   endScreen.classList.remove('hidden');
 }
 
@@ -732,7 +902,7 @@ function flash(btn,msg){ const o=btn.textContent; btn.textContent=msg; setTimeou
 
 function saveGame(){
   try{
-    localStorage.setItem('vn_save',JSON.stringify({index:state.index,log:[...state.log]}));
+    localStorage.setItem('vn_save',JSON.stringify({index:state.index,log:[...state.log],branchPath:[...state.branchPath],quizScore:state.quizScore}));
     flash(btnSave,'Sauvegardé ✓');
   } catch{ alert('Impossible de sauvegarder.'); }
 }
@@ -743,257 +913,98 @@ function loadGame(){
     if(!r){alert('Aucune sauvegarde.');return;}
     const sl=JSON.parse(r);
     state.log=sl.log||[];
+    state.branchPath=sl.branchPath||[];
+    state.quizScore=sl.quizScore||0;
     go(sl.index);
     flash(btnLoad,'Chargé ✓');
   } catch{ alert('Erreur chargement.'); }
 }
 
-// ── Éditeur complet ──
-let selectedSceneId = null;
+// ── Menu d’accueil et options ──
+let music = null;
+let musicVolume = 0.35;
+let fullscreenEnabled = false;
 
-function openEditor(){
-  editorPanel.classList.remove('hidden');
-  refreshSceneList();
-  renderStoryTree();
-  if(selectedSceneId){
-    const scene = story.find(s => s.id === selectedSceneId);
-    if(scene) fillEditorForm(scene);
-    else selectedSceneId = story[0]?.id || null;
-  } else if(story.length){
-    selectScene(story[0].id);
-  } else {
-    resetEditorForm();
+function openSettings(){
+  settingsPanel.classList.remove('hidden');
+  musicVolumeInput.value = musicVolume;
+  fullscreenToggle.checked = fullscreenEnabled;
+}
+
+function closeSettings(){
+  settingsPanel.classList.add('hidden');
+}
+
+function applySettings(){
+  musicVolume = parseFloat(musicVolumeInput.value) || 0;
+  fullscreenEnabled = fullscreenToggle.checked;
+  if(music){ music.volume = musicVolume; }
+  if(fullscreenEnabled){
+    document.documentElement.requestFullscreen?.();
+  } else if(document.fullscreenElement){
+    document.exitFullscreen?.();
   }
-  setEditorStatus('Modifie, supprime ou ajoute des scènes. Les changements sont sauvegardés.');
+  closeSettings();
 }
 
-function closeEditor(){
-  editorPanel.classList.add('hidden');
-}
-
-function syncEditorMode(){
-  const isChoice = editorType.value === 'choice';
-  const isEnd = editorType.value === 'end';
-  editorChoiceBlock.classList.toggle('hidden', !isChoice);
-  editorTextBlock.classList.toggle('hidden', isChoice || isEnd);
-  editorCharacterRow.classList.toggle('hidden', isEnd);
-  editorImageRow.classList.toggle('hidden', isEnd);
-  editorBackgroundRow.classList.toggle('hidden', isEnd);
-  editorEndBlock.classList.toggle('hidden', !isEnd);
-  editorEndDescBlock.classList.toggle('hidden', !isEnd);
-}
-
-function setEditorStatus(message,isError=false){
-  editorStatus.textContent = message;
-  editorStatus.style.color = isError ? '#ff9fa6' : 'var(--muted)';
-}
-
-function generateSceneId(prefix='scene'){ 
-  const base = `${prefix}_${Math.random().toString(36).slice(2,8)}`;
-  return idMap[base] ? generateSceneId(prefix) : base;
-}
-
-function ensureUniqueId(candidate, ignoreId=null){
-  const base = (candidate || '').trim() || generateSceneId();
-  if(base === ignoreId) return base;
-  return story.some(s => s.id === base && s.id !== ignoreId) ? generateSceneId() : base;
-}
-
-function updateReferences(oldId,newId){
-  story.forEach(scene => {
-    if(scene.type === 'choice' && Array.isArray(scene.choices)){
-      scene.choices = scene.choices.map(choice => choice.next === oldId ? {...choice, next:newId} : choice);
-    }
-  });
-}
-
-function fillEditorForm(scene){
-  editorType.value = scene.type || 'dialogue';
-  editorId.value = scene.id || '';
-  editorCharacter.value = scene.character || '';
-  editorImage.value = scene.image || '';
-  editorBackground.value = scene.background || '';
-  editorText.value = scene.text || '';
-  editorTitle.value = scene.title || '';
-  editorDesc.value = scene.desc || '';
-  editorChoices.value = Array.isArray(scene.choices) ? scene.choices.map(c => `${c.label} | ${c.next}`).join('\n') : '';
-  syncEditorMode();
-}
-
-function resetEditorForm(){
-  selectedSceneId = null;
-  editorType.value = 'dialogue';
-  editorId.value = '';
-  editorCharacter.value = '';
-  editorImage.value = '';
-  editorBackground.value = '';
-  editorText.value = '';
-  editorTitle.value = '';
-  editorDesc.value = '';
-  editorChoices.value = '';
-  syncEditorMode();
-}
-
-function refreshSceneList(){
-  editorSceneList.innerHTML='';
-  if(!story.length){
-    editorSceneList.innerHTML='<div class="editor-empty">Aucune scène pour l’instant.</div>';
-    return;
-  }
-  story.forEach((scene,index)=>{
-    const btn = document.createElement('button');
-    btn.type='button';
-    btn.className='editor-scene-item' + (scene.id === selectedSceneId ? ' selected' : '');
-    const typeLabel = scene.type === 'choice' ? 'Choix' : scene.type === 'end' ? 'Fin' : 'Dialogue';
-    btn.innerHTML = `<strong>${index+1}. ${scene.id}</strong><span>${typeLabel} • ${scene.character || scene.title || 'Scène'}</span>`;
-    btn.onclick = () => selectScene(scene.id);
-    editorSceneList.appendChild(btn);
-  });
-}
-
-function renderStoryTree(){
-  editorTreeView.innerHTML='';
-  if(!story.length){
-    editorTreeView.innerHTML='<div class="tree-empty">Le scénario n’a pas encore de branches à afficher.</div>';
-    return;
-  }
-  const list = document.createElement('div');
-  list.className='tree-list tree-root';
-  story.forEach((scene,index)=>{
-    const node = document.createElement('div');
-    node.className='tree-node';
-    const typeLabel = scene.type === 'choice' ? 'Choix' : scene.type === 'end' ? 'Fin' : 'Dialogue';
-    node.innerHTML = `<strong>${index+1}. ${scene.id}</strong><span>${typeLabel}</span>`;
-    list.appendChild(node);
-    if(scene.type === 'choice' && Array.isArray(scene.choices) && scene.choices.length){
-      const branches = document.createElement('div');
-      branches.className='tree-branches';
-      scene.choices.forEach(choice => {
-        const item = document.createElement('div');
-        item.className='tree-branch';
-        item.textContent = `${choice.label} → ${choice.next}`;
-        branches.appendChild(item);
-      });
-      list.appendChild(branches);
-    }
-  });
-  editorTreeView.appendChild(list);
-}
-
-function selectScene(id){
-  const scene = story.find(s => s.id === id);
-  if(!scene) return;
-  selectedSceneId = scene.id;
-  refreshSceneList();
-  fillEditorForm(scene);
-}
-
-function buildSceneFromEditor(){
-  const type = editorType.value;
-  const id = ensureUniqueId(editorId.value, selectedSceneId);
-  if(type === 'dialogue'){
-    const text = editorText.value.trim();
-    if(!text){ setEditorStatus('Écris un texte avant d’enregistrer cette scène.', true); return null; }
-    return { id, type:'dialogue', character:editorCharacter.value.trim(), image:editorImage.value.trim(), background:editorBackground.value.trim(), text };
-  }
-  if(type === 'choice'){
-    const rawChoices = editorChoices.value.split(/\n+/).map(l=>l.trim()).filter(Boolean);
-    if(rawChoices.length === 0){ setEditorStatus('Ajoute au moins un choix.', true); return null; }
-    const choices = rawChoices.map(line=>{
-      const parts = line.split('|').map(p=>p.trim());
-      const label = parts[0] || 'Choix';
-      const next = parts[1] || generateSceneId('next');
-      return { label, next };
-    });
-    return { id, type:'choice', choices };
-  }
-  const title = editorTitle.value.trim();
-  const desc = editorDesc.value.trim();
-  if(!title || !desc){ setEditorStatus('Ajoute un titre et une description pour cette fin.', true); return null; }
-  return { id, type:'end', title, desc };
-}
-
-async function saveSceneFromEditor(mode='update'){
-  const scene = buildSceneFromEditor();
-  if(!scene) return;
-  const existing = story.find(s => s.id === selectedSceneId);
-  if(existing && mode === 'update'){
-    const oldId = existing.id;
-    const nextId = ensureUniqueId(scene.id, oldId);
-    if(nextId !== oldId) updateReferences(oldId, nextId);
-    const idx = story.findIndex(s => s.id === oldId);
-    story[idx] = { ...scene, id: nextId };
-    selectedSceneId = nextId;
-    setEditorStatus(`Scène mise à jour : ${nextId}`);
-  } else {
-    const insertIndex = mode === 'end' ? story.length : Math.max(0, state.index + 1);
-    const nextId = ensureUniqueId(scene.id);
-    const newScene = { ...scene, id: nextId };
-    story.splice(insertIndex, 0, newScene);
-    selectedSceneId = nextId;
-    state.index = insertIndex;
-    setEditorStatus(`Nouvelle scène ajoutée : ${nextId}`);
-  }
-  rebuildIdMap();
-  refreshSceneList();
-  renderStoryTree();
-  await saveStoryData();
-  if(!el('game-screen').classList.contains('hidden')) {
-    if(selectedSceneId) go(selectedSceneId);
-  }
-}
-
-async function deleteSelectedScene(){
-  if(!selectedSceneId){ setEditorStatus('Sélectionne une scène à supprimer.', true); return; }
-  const targetId = selectedSceneId;
-  if(!confirm('Supprimer cette scène et les références qui pointent vers elle ?')) return;
-  story = story.filter(s => s.id !== targetId);
-  story.forEach(scene => {
-    if(scene.type === 'choice' && Array.isArray(scene.choices)){
-      scene.choices = scene.choices.filter(choice => choice.next !== targetId);
-    }
-  });
-  rebuildIdMap();
-  selectedSceneId = story[0]?.id || null;
-  refreshSceneList();
-  renderStoryTree();
-  if(selectedSceneId) fillEditorForm(story.find(s=>s.id===selectedSceneId));
-  else resetEditorForm();
-  await saveStoryData();
-  setEditorStatus(`Scène supprimée : ${targetId}`);
-  if(!el('game-screen').classList.contains('hidden')) go(Math.min(state.index, story.length - 1));
-}
-
-async function syncStoryFromServer(){
+function startMusic(){
+  if(music) return;
   try{
-    setEditorStatus('Synchronisation en cours…');
-    const response = await fetch('/api/story', { cache: 'no-store' });
-    if(!response.ok) throw new Error('Impossible de charger depuis le serveur');
-    const fromServer = await response.json();
-    if(Array.isArray(fromServer) && fromServer.length){
-      story = fromServer;
-      rebuildIdMap();
-      selectedSceneId = story[0]?.id || null;
-      refreshSceneList();
-      renderStoryTree();
-      if(selectedSceneId) fillEditorForm(story.find(s => s.id === selectedSceneId));
-      else resetEditorForm();
-      localStorage.setItem(storyStorageKey, JSON.stringify(story));
-      setEditorStatus('Synchronisation réussie.');
-    } else {
-      setEditorStatus('Aucune donnée reçue depuis le serveur.', true);
-    }
-  } catch (error) {
-    setEditorStatus('Échec de la synchronisation.', true);
+    music = new Audio('https://cdn.pixabay.com/audio/2023/05/02/audio_3fb161ae83.mp3');
+    music.loop = true;
+    music.volume = musicVolume;
+    music.play().catch(()=>{});
+  } catch {}
+}
+
+function showTitleScreen(){
+  el('title-screen').classList.remove('hidden');
+  el('game-screen').classList.add('hidden');
+  endScreen.classList.add('hidden');
+  state.index = 0;
+  state.autoMode = false;
+  state.log = [];
+  state.quizScore = 0;
+  state.branchPath = [];
+  startMusic();
+}
+
+function tryLoadSavedGame(){
+  try{
+    const raw = localStorage.getItem('vn_save');
+    if(!raw){ alert('Aucune partie sauvegardée.'); return; }
+    const parsed = JSON.parse(raw);
+    state.log = parsed.log || [];
+    state.branchPath = parsed.branchPath || [];
+    state.quizScore = parsed.quizScore || 0;
+    el('title-screen').classList.add('hidden');
+    el('game-screen').classList.remove('hidden');
+    memoryPanel.classList.remove('hidden');
+    updateMemoryUI();
+    go(parsed.index || 0);
+    startMusic();
+  } catch {
+    alert('Impossible de charger la sauvegarde.');
   }
 }
 
 // ── Événements ──
 el('btn-start').onclick=()=>{
+  state.log = [];
+  state.quizScore = 0;
+  state.branchPath = [];
   el('title-screen').classList.add('hidden');
   el('game-screen').classList.remove('hidden');
+  memoryPanel.classList.remove('hidden');
+  updateMemoryUI();
+  startMusic();
   go(0);
 };
+
+el('btn-load-title').onclick=tryLoadSavedGame;
+btnSettings.onclick=openSettings;
+btnCloseSettings.onclick=closeSettings;
+btnApplySettings.onclick=applySettings;
 
 dBox.onclick=()=>{ if(!dChoice.classList.contains('hidden')) return; clearTimeout(state.autoTimer); advance(); };
 
@@ -1014,16 +1025,6 @@ btnAuto.onclick=()=>{
 el('btn-skip').onclick=()=>{ clearTimeout(state.autoTimer); state.isTyping=false; advance(); };
 el('btn-log').onclick=openLog;
 el('btn-close-log').onclick=()=>logPanel.classList.add('hidden');
-btnEditor.onclick=openEditor;
-btnCloseEditor.onclick=closeEditor;
-editorType.onchange=syncEditorMode;
-syncEditorMode();
-btnSaveScene.onclick=()=>saveSceneFromEditor('update');
-btnNewScene.onclick=()=>{ resetEditorForm(); setEditorStatus('Formulaire vidé. Enregistre pour créer une nouvelle scène.'); };
-btnAddScene.onclick=()=>saveSceneFromEditor('after');
-btnAddSceneEnd.onclick=()=>saveSceneFromEditor('end');
-btnDeleteScene.onclick=deleteSelectedScene;
-btnSyncStory.onclick=syncStoryFromServer;
 btnSave.onclick=saveGame;
 btnLoad.onclick=loadGame;
 
@@ -1031,8 +1032,11 @@ el('btn-end-restart').onclick=()=>{
   state.index=0;
   state.autoMode=false;
   state.log=[];
+  state.quizScore=0;
+  state.branchPath=[];
   endScreen.classList.add('hidden');
   el('title-screen').classList.remove('hidden');
+  startMusic();
 };
 </script>
 </body>
