@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cercle Vicieux</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0910;--panel:rgba(10,9,22,0.85);--border:rgba(180,160,255,0.18);
+  --accent:#b89fff;--accent2:#7c5ccc;--text:#ede9ff;--name:#d4c5ff;--muted:#6e6590;--r:14px;
+  --narrator:#8c8aa8;
+}
+body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);height:100dvh;overflow:hidden;user-select:none;}
+.hidden{display:none!important}
+
+/* ── TITRE ── */
+#title-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;background:#0a0910;overflow:hidden;}
+#title-screen::before{content:'';position:absolute;inset:0;background-image:radial-gradient(1px 1px at 20% 15%,#fff 0%,transparent 100%),radial-gradient(1px 1px at 55% 40%,rgba(255,255,255,.7) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 80% 20%,#fff 0%,transparent 100%),radial-gradient(1px 1px at 35% 70%,rgba(255,255,255,.5) 0%,transparent 100%),radial-gradient(1px 1px at 65% 80%,rgba(255,255,255,.6) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 10% 55%,#fff 0%,transparent 100%),radial-gradient(1px 1px at 90% 60%,rgba(255,255,255,.4) 0%,transparent 100%),radial-gradient(1px 1px at 45% 25%,rgba(255,255,255,.8) 0%,transparent 100%),radial-gradient(1px 1px at 75% 50%,rgba(255,255,255,.5) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 25% 85%,#fff 0%,transparent 100%),radial-gradient(1px 1px at 5% 30%,rgba(255,255,255,.6) 0%,transparent 100%),radial-gradient(1px 1px at 92% 38%,rgba(255,255,255,.5) 0%,transparent 100%),radial-gradient(1px 1px at 48% 92%,rgba(255,255,255,.4) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 60% 10%,#fff 0%,transparent 100%),radial-gradient(1px 1px at 15% 45%,rgba(255,255,255,.7) 0%,transparent 100%);pointer-events:none;}
+#title-screen::after{content:'';position:absolute;width:600px;height:400px;top:50%;left:50%;transform:translate(-50%,-60%);background:radial-gradient(ellipse,rgba(120,80,220,0.22) 0%,transparent 70%);pointer-events:none;}
+.title-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.2rem;animation:fadeUp .9s ease both;}
+.title-deco{display:flex;align-items:center;gap:12px;margin-bottom:.4rem;}
+.title-deco span{display:block;height:1px;width:60px;background:linear-gradient(90deg,transparent,var(--accent2));}
+.title-deco span:last-child{background:linear-gradient(90deg,var(--accent2),transparent);}
+.title-deco i{font-size:16px;color:var(--accent2);letter-spacing:.2em;}
+#game-title{font-family:Georgia,serif;font-size:clamp(2.4rem,6vw,4.2rem);font-weight:normal;letter-spacing:.1em;color:var(--name);text-shadow:0 0 60px rgba(160,120,255,.4);line-height:1.1;}
+#game-subtitle{font-size:.95rem;color:var(--muted);letter-spacing:.22em;text-transform:uppercase;}
+.title-sep{width:1px;height:40px;background:linear-gradient(to bottom,transparent,var(--border),transparent);margin:.2rem 0;}
+#btn-start{margin-top:.5rem;padding:.7rem 2.6rem;font-size:.9rem;font-family:inherit;letter-spacing:.14em;text-transform:uppercase;background:transparent;color:var(--accent);border:1px solid var(--accent2);border-radius:40px;cursor:pointer;transition:background .25s,color .25s,border-color .25s,box-shadow .25s;position:relative;overflow:hidden;}
+#btn-start::before{content:'';position:absolute;inset:0;background:var(--accent2);opacity:0;transition:opacity .25s;border-radius:40px;}
+#btn-start:hover{color:#fff;border-color:var(--accent);box-shadow:0 0 28px rgba(140,100,255,.35);}
+#btn-start:hover::before{opacity:1}
+#btn-start span{position:relative;z-index:1}
+
+/* ── SCÈNE ── */
+#game-screen{position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center;}
+#background{position:absolute;inset:0;background-size:cover;background-position:center;transition:opacity .55s ease;}
+#background::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(8,6,20,.75) 0%,rgba(8,6,20,.15) 50%,transparent 100%);}
+#character-container{position:absolute;bottom:155px;left:50%;transform:translateX(-50%);pointer-events:none;max-height:70vh;display:flex;align-items:flex-end;transition:opacity .4s;}
+#character-img{max-height:70vh;max-width:38vw;object-fit:contain;filter:drop-shadow(0 6px 28px rgba(0,0,0,.75));}
+#character-img.fi{animation:charIn .4s ease both}
+#character-img.fo{animation:charOut .3s ease both}
+
+/* ── BOÎTE DIALOGUE ── */
+#dialogue-box{position:relative;z-index:10;width:min(800px,94vw);margin-bottom:24px;background:var(--panel);border:1px solid var(--border);border-radius:var(--r);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 2px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(180,160,255,.08);cursor:pointer;overflow:hidden;transition:border-color .4s,box-shadow .4s;}
+#dialogue-box::before{content:'';display:block;height:2px;background:linear-gradient(90deg,transparent 0%,var(--accent2) 30%,var(--accent) 60%,transparent 100%);opacity:.6;transition:background .4s;}
+#dialogue-header{padding:.55rem 1.1rem .1rem}
+#character-name{display:inline-block;font-family:Georgia,serif;font-size:.95rem;font-weight:normal;color:var(--name);letter-spacing:.08em;padding:.15rem 0;border-bottom:1.5px solid var(--accent2);min-width:50px;min-height:1.3em;opacity:.92;transition:color .3s,border-color .3s;}
+#dialogue-text-wrapper{padding:.65rem 1.1rem .9rem;position:relative;}
+#dialogue-text{font-size:clamp(.95rem,2vw,1.05rem);line-height:1.8;color:var(--text);min-height:3em;white-space:pre-line;}
+#next-arrow{position:absolute;bottom:.55rem;right:1rem;color:var(--accent);font-size:.8rem;animation:bounce 1.1s infinite;opacity:.7;}
+#choices-container{display:flex;flex-direction:column;gap:.45rem;padding:.3rem 1.1rem .9rem;}
+.choice-btn{padding:.6rem .9rem;background:rgba(140,100,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.93rem;cursor:pointer;text-align:left;transition:background .2s,border-color .2s;}
+.choice-btn:hover{background:rgba(140,100,255,.18);border-color:var(--accent2)}
+
+/* ── STYLE NARRATEUR EXTÉRIEUR ── */
+#dialogue-box.narrator-mode{border-color:rgba(140,138,168,.35);box-shadow:0 2px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(140,138,168,.12);}
+#dialogue-box.narrator-mode::before{background:linear-gradient(90deg,transparent 0%,var(--narrator) 30%,#b8b6d0 60%,transparent 100%);}
+#dialogue-box.narrator-mode #character-name{color:var(--narrator);border-bottom-color:var(--narrator);font-style:italic;letter-spacing:.14em;}
+#dialogue-box.narrator-mode #dialogue-text{color:#c4c2da;font-style:italic;font-size:clamp(.88rem,1.8vw,.98rem);}
+
+/* ── TOOLBAR ── */
+#toolbar{position:fixed;top:14px;right:14px;display:flex;gap:7px;z-index:20;}
+.tool-btn{padding:.35rem .85rem;font-size:.75rem;font-family:inherit;background:var(--panel);color:var(--muted);border:1px solid var(--border);border-radius:20px;cursor:pointer;backdrop-filter:blur(12px);transition:color .2s,border-color .2s;}
+.tool-btn:hover,.tool-btn.active{color:var(--accent);border-color:var(--accent2)}
+
+/* ── LOG ── */
+#log-panel{position:fixed;inset:0;z-index:50;background:rgba(8,6,20,.96);backdrop-filter:blur(22px);display:flex;flex-direction:column;animation:fadeUp .2s ease both;}
+#log-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.4rem;border-bottom:1px solid var(--border);font-family:Georgia,serif;font-size:1rem;color:var(--name);}
+#btn-close-log{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;transition:color .2s;}
+#btn-close-log:hover{color:var(--text)}
+#log-entries{overflow-y:auto;padding:1rem 1.4rem 2rem;display:flex;flex-direction:column;gap:1.1rem;}
+.log-entry{display:flex;flex-direction:column;gap:.25rem}
+.log-entry.is-narrator .log-name{color:var(--narrator);font-style:italic;}
+.log-entry.is-narrator .log-line{font-style:italic;color:#8a87a0;}
+.log-name{font-size:.82rem;color:var(--name);font-weight:600}
+.log-line{font-size:.93rem;color:var(--muted);line-height:1.65}
+
+/* ── ÉCRAN DE FIN SIMPLE ── */
+#end-screen{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(6,5,14,.97);backdrop-filter:blur(24px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem 1.2rem;
+  text-align:center;
+  animation:fadeUp .35s ease both;
+}
+#end-title{
+  font-family:Georgia,serif;font-size:clamp(1.4rem,4vw,2.2rem);
+  color:var(--name);letter-spacing:.08em;margin-bottom:1rem;
+}
+#end-desc{
+  font-size:.95rem;color:var(--muted);line-height:1.8;
+  max-width:520px;margin-bottom:2rem;
+}
+#btn-end-restart{
+  padding:.7rem 2.4rem;font-size:.85rem;font-family:inherit;
+  letter-spacing:.14em;text-transform:uppercase;
+  background:transparent;color:var(--accent);
+  border:1px solid var(--accent2);border-radius:40px;cursor:pointer;
+  transition:background .25s,color .25s,box-shadow .25s;
+}
+#btn-end-restart:hover{color:#fff;box-shadow:0 0 28px rgba(140,100,255,.35);background:var(--accent2);}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+@keyframes charIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes charOut{from{opacity:1}to{opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- TITRE -->
+<div id="title-screen">
+  <div class="title-inner">
+    <div class="title-deco"><span></span><i>✦</i><span></span></div>
+    <h1 id="game-title">Cercle Vicieux</h1>
+    <p id="game-subtitle">Une histoire d'amour qui ne devrait pas en être une</p>
+    <div class="title-sep"></div>
+    <button id="btn-start"><span>▶ Commencer</span></button>
+  </div>
+</div>
+
+<!-- SCÈNE -->
+<div id="game-screen" class="hidden">
+  <div id="background"></div>
+  <div id="character-container"><img id="character-img" src="" alt="Personnage"/></div>
+  <div id="dialogue-box">
+    <div id="dialogue-header"><span id="character-name"></span></div>
+    <div id="dialogue-text-wrapper">
+      <p id="dialogue-text"></p>
+      <span id="next-arrow">▼</span>
+    </div>
+    <div id="choices-container" class="hidden"></div>
+  </div>
+  <div id="toolbar">
+    <button class="tool-btn" id="btn-auto">⏵ Auto</button>
+    <button class="tool-btn" id="btn-skip">⏭ Passer</button>
+    <button class="tool-btn" id="btn-log">📜 Log</button>
+    <button class="tool-btn" id="btn-save">💾 Save</button>
+    <button class="tool-btn" id="btn-load">📂 Load</button>
+  </div>
+  <div id="log-panel" class="hidden">
+    <div id="log-header"><span>Journal</span><button id="btn-close-log">✕</button></div>
+    <div id="log-entries"></div>
+  </div>
+</div>
+
+<!-- ÉCRAN DE FIN -->
+<div id="end-screen" class="hidden">
+  <h1 id="end-title"></h1>
+  <p id="end-desc"></p>
+  <button id="btn-end-restart"><span>Recommencer</span></button>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  SCÉNARIO — « Cercle Vicieux »
+//
+//  Plus de jauge d'affinité : la suite de l'histoire est
+//  déterminée UNIQUEMENT par les choix narratifs (chaque choix
+//  pointe directement vers la scène suivante via "next").
+//
+//  Deux types de choix, librement mélangeables :
+//
+//  1) CHOIX "RÉACTION" (sans impact structurel)
+//     → toutes les options pointent vers la MÊME scène suivante,
+//       mais chacune peut déclencher une petite réaction
+//       différente avant de converger. Utile pour donner de
+//       l'agentivité sans complexifier l'arborescence.
+//
+//     Exemple :
+//     { id:"X", type:"choice", choices:[
+//         { label:"Option A", next:"reaction_a" },
+//         { label:"Option B", next:"reaction_b" },
+//       ] }
+//     → "reaction_a" et "reaction_b" sont de courtes scènes
+//       distinctes qui ENCHAÎNENT ensuite vers la même scène
+//       commune (ex: les deux ont next:"suite_commune").
+//
+//  2) CHOIX "BRANCHE" (structurel)
+//     → chaque option mène à une scène ou un fil narratif
+//       réellement différent, qui peut lui-même continuer
+//       différemment ou converger plus tard.
+//
+//     Exemple :
+//     { id:"Y", type:"choice", choices:[
+//         { label:"Option A", next:"branche_a_1" },
+//         { label:"Option B", next:"branche_b_1" },
+//       ] }
+//
+//  ── DIALOGUE ──
+//  { id, type:"dialogue", character, image, background, text }
+//  → character:"Narrateur-ext" active le style "narrateur
+//    extérieur" (italique, gris, en retrait du récit).
+//
+//  ── FIN ──
+//  { id, type:"end", title, desc }
+//  → affiche l'écran de fin avec titre + description, puis
+//    propose de recommencer.
+// ════════════════════════════════════════════════════════════
+
+const story = [
+
+  // ── PROLOGUE ──────────────────────────────────────────────
+  {
+    id:"1", type:"dialogue",
+    character:"", image:"",
+    background:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1280&q=80",
+    text:"Une nuit chaude de juin, là où amour ce mele avec désir."
+  },
+  {
+    id:"2", type:"dialogue",
+    character:"", image:"", background:"",
+    text:"Tu te retrouve dans ton lit douillet accompagné de ta chere et tendre chérie, qui a son habitude, est tres proche de toi."
+  },
+  {
+    id: "3", type: "dialogue", character: "", image: "",
+    background:"",
+    text: "Tu te demande comment un gars comme toi a reussi a sortir avec une fille aussi incroyable. Elle a tout pour plaire : "
+  },
+  {
+    id:"4", type:"dialogue", character:"", image:"", background:"", text:"Elle est inteligente, elle t'aide pour tes devoirs, elle est...jolie."
+  },
+  {
+    id:"5", type:"dialogue", character:"", image:"", background:"", text:"Bref, compare a toi, elle as un avenir tout tracée, tandis que tu risque de finir au McDonald du coin, elle va faire des etudes d'avocats."
+  },
+  {
+    id:"6", type:"dialogue", character:"", image:"", background:"", text: "Au moins tu devrais vivre une belle vie, avec autant d'argent que tu veux, une belle maison, des voyages, bref, tout ce dont tu as toujours rever. Et elle sait que tu l'aime, elle sait que tu serais pret a faire n'importe quoi pour elle, des fois elle en abuse, mais tu ferais n'importe quoi pour de l'argent."
+  },
+  {
+    id:"7", type:"dialogue", character:"", image:"", background:"", text:"Tu te dis que tu serait pret a faire tout les sacrifices du monde pour rester avec elle, car malgré tout l'argent qu'elle pourrait t'apporter, tu l'aimes."
+  },
+  {
+    id:"8", type:"dialogue", character:"", image:"", background:"", text:"Et c'est la seul chose qui compte."
+  },
+
+  // ── SCÈNE 1 — Retrouvailles ──────────────────────────────
+  {
+    id:"lou_arrive", type:"dialogue",
+    character:"Lou",
+    image:"",
+    background:"https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=1280&q=80",
+    text:"Dis, est ce que tu m'aime toujours ?"
+  },
+  {
+    id:"lou_reproche", type:"dialogue",
+    character:"",
+    image:"https://i.postimg.cc/kMkr2p1d/Sans-titre-481-20260612142710.png",
+    background:"",
+    text:"C'est evidement ce genre de question que tu as envie d'entendre avant d'aller te coucher, mais tu fait avec en te disant qu'elle n'a simplement besoin de ce faire reconforter."
+  },
+  {
+    id:"narrateur_1", type:"dialogue",
+    character:"Steve", image:"https://i.postimg.cc/MXkYzRm5/Sans-titre-481-20260612142658.png", background:"",
+    text:"Bien sur, sinon je ne serais pas rester avec toi."
+  },
+
+  // ── CHOIX 1 : RÉACTION (sans impact structurel) ──────────
+  //  Les trois options donnent une réaction différente,
+  //  puis convergent vers "lou_propose_sortie".
+  {
+    id:"choix_reaction_1", type:"choice",
+    choices:[
+      { label:"« Pardon… je vais faire attention. »", next:"reac_excuse" },
+      { label:"« Je ne te dois pas d'explication pour chaque silence. »", next:"reac_recul" },
+      { label:"« Désolé, j'étais occupé, c'est tout. »", next:"reac_neutre" },
+    ]
+  },
+  {
+    id:"reac_excuse", type:"dialogue",
+    character:"Lou",
+    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+    background:"",
+    text:"C'est tout ce que je voulais entendre. Tu vois, c'est pas compliqué."
+  },
+  {
+    id:"reac_recul", type:"dialogue",
+    character:"Lou",
+    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+    background:"",
+    text:"(Un silence. Puis, plus bas :)\nOk, ok. J'exagère peut-être un peu, parfois."
+  },
+  {
+    id:"reac_neutre", type:"dialogue",
+    character:"Lou",
+    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+    background:"",
+    text:"Occupé. Ouais. Bon, peu importe."
+  },
+  {
+    id:"narrateur_apres_choix1", type:"dialogue",
+    character:"Narrateur-ext", image:"", background:"",
+    text:"Quelle que soit la réponse, la soirée continue. C'est souvent ainsi : la tension retombe, sans jamais vraiment se résoudre."
+  },
+
+  // ── SCÈNE COMMUNE — Lou propose de se voir ───────────────
+  {
+    id:"lou_propose_sortie", type:"dialogue",
+    character:"Lou",
+    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+    background:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80",
+    text:"Bon. Tu fais quoi ce soir ? Viens, on va prendre l'air, ça nous fera du bien à tous les deux."
+  },
+  {
+    id:"narrateur_2", type:"dialogue",
+    character:"Narrateur-ext", image:"", background:"",
+    text:"« Ça nous fera du bien. » Une proposition qui ressemble à une question, mais qui n'en est pas vraiment une."
+  },
+
+  // ── CHOIX 2 : BRANCHE STRUCTURELLE ───────────────────────
+  //  Deux fils narratifs réellement différents.
+  {
+    id:"choix_branche_1", type:"choice",
+    choices:[
+      { label:"« D'accord, je te rejoins. »", next:"branche_accepte_1" },
+      { label:"« Pas ce soir, je suis épuisé(e). »", next:"branche_refuse_1" },
+    ]
+  },
+
+  // ═══ FIL A : "j'accepte" ═══
+  {
+    id:"branche_accepte_1", type:"dialogue",
+    character:"Lou",
+    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+    background:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80",
+    text:"Voilà, c'est ça que j'aime entendre. On se retrouve dans une heure ?"
+  },
+  {
+    id:"branche_accepte_2", type:"dialogue",
+    character:"", image:"",
+    background:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80",
+    text:"Le café est presque vide à cette heure. Lou est déjà là, un sourire chaleureux aux lèvres — comme si rien ne s'était passé plus tôt."
+  },
+  {
+    id:"branche_accepte_3", type:"dialogue",
+    character:"Lou",
+    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+    background:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80",
+    text:"Tu vois, c'est ça qui me plaît avec toi. T'es la seule personne avec qui je me sens vraiment moi-même."
+  },
+
+  // Choix réaction (sans impact) à l'intérieur du fil A
+  {
+    id:"choix_reaction_2", type:"choice",
+    choices:[
+      { label:"Sourire et la laisser parler.", next:"reac2_sourire" },
+      { label:"Demander comment s'est passée sa journée.", next:"reac2_question" },
+    ]
+  },
+  {
+    id:"reac2_sourire", type:"dialogue",
+    character:"", image:"", background:"",
+    text:"Un sourire suffit. Lou continue, intarissable, sans vraiment laisser de place pour autre chose."
+  },
+  {
+    id:"reac2_question", type:"dialogue",
+    character:"Lou",
+    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+    background:"",
+    text:"Oh, la journée ? Bof, sans intérêt. Mais toi, raconte — enfin, après, parce que j'avais encore un truc à te dire…"
+  },
+  {
+    id:"narrateur_3", type:"dialogue",
+    character:"Narrateur-ext", image:"", background:"",
+    text:"La question a existé l'espace d'une phrase, puis a disparu. La conversation, comme souvent, revient vers Lou."
+  },
+  {
+    id:"fin_accepte", type:"end",
+    title:"La soirée continue",
+    desc:"La tension du début de soirée s'est dissipée dans la chaleur du moment présent. Rien n'a été résolu — mais ce soir, ça n'a pas eu besoin de l'être. La même scène se rejouera, sous une forme ou une autre, une autre fois."
+  },
+
+  // ═══ FIL B : "je refuse" ═══
+  {
+    id:"branche_refuse_1", type:"dialogue",
+    character:"Lou",
+    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+    background:"https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=1280&q=80",
+    text:"Épuisé(e) ? Sérieusement ? On se voit jamais et là tu préfères rester chez toi."
+  },
+  {
+    id:"narrateur_4", type:"dialogue",
+    character:"Narrateur-ext", image:"", background:"",
+    text:"Un simple « non » vient de devenir un sujet de discussion. C'est souvent comme ça que ça commence."
+  },
+
+  // Choix réaction (sans impact) à l'intérieur du fil B
+  {
+    id:"choix_reaction_3", type:"choice",
+    choices:[
+      { label:"« Je suis vraiment fatigué(e), ce n'est pas contre toi. »", next:"reac3_explique" },
+      { label:"Ne rien répondre tout de suite.", next:"reac3_silence" },
+    ]
+  },
+  {
+    id:"reac3_explique", type:"dialogue",
+    character:"", image:"", background:"",
+    text:"Vous expliquez, calmement. Les mots sortent, mais vous sentez déjà qu'ils ne suffiront pas."
+  },
+  {
+    id:"reac3_silence", type:"dialogue",
+    character:"", image:"", background:"",
+    text:"Le silence s'étire. À l'autre bout, vous imaginez Lou en train de taper, puis d'effacer, puis de retaper."
+  },
+  {
+    id:"branche_refuse_2", type:"dialogue",
+    character:"Lou",
+    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
+    background:"https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=1280&q=80",
+    text:"Ok. Ok, je vois. Très bien. Profite de ta soirée tranquille alors."
+  },
+  {
+    id:"narrateur_5", type:"dialogue",
+    character:"Narrateur-ext", image:"", background:"",
+    text:"« Profite. » Le mot sonne comme une porte qu'on referme un peu plus fort que nécessaire."
+  },
+  {
+    id:"fin_refuse", type:"end",
+    title:"Le silence qui suit",
+    desc:"Pour ce soir, vous avez tenu votre position. Le silence qui s'installe n'est pas léger — mais pour une fois, il vous appartient. Demain, la conversation reprendra probablement comme si de rien n'était. Ou pas."
+  },
+];
+
+// ════════════════════════════════════════════════════════════
+//  MOTEUR
+// ════════════════════════════════════════════════════════════
+
+// Index id → position dans story[]
+const idMap = {};
+story.forEach((s,i) => { if(s.id) idMap[s.id]=i; });
+
+// État du jeu
+const state = {
+  index:0, autoMode:false, autoTimer:null, typeTimer:null, isTyping:false, log:[],
+};
+
+// ── DOM ──
+const el       = id => document.getElementById(id);
+const bg       = el('background');
+const charCon  = el('character-container');
+const charImg  = el('character-img');
+const dBox     = el('dialogue-box');
+const dName    = el('character-name');
+const dText    = el('dialogue-text');
+const dArrow   = el('next-arrow');
+const dChoice  = el('choices-container');
+const logPanel = el('log-panel');
+const logList  = el('log-entries');
+const btnAuto  = el('btn-auto');
+const btnSave  = el('btn-save');
+const btnLoad  = el('btn-load');
+const endScreen = el('end-screen');
+
+// ── Navigation ──
+function go(indexOrId){
+  const idx = typeof indexOrId==='string' ? idMap[indexOrId] : indexOrId;
+  if(idx===undefined||idx>=story.length) return;
+  state.index=idx;
+  const s=story[idx];
+  if(s.type==='dialogue') showDialogue(s);
+  if(s.type==='choice')   showChoices(s);
+  if(s.type==='end')      showEnd(s);
+}
+
+function showDialogue(s){
+  dChoice.classList.add('hidden');
+  dArrow.style.display='';
+  if(s.background) bg.style.backgroundImage=`url('${s.background}')`;
+  if(s.image){ charImg.src=s.image; charCon.style.display=''; charImg.className='fi'; }
+  else { charCon.style.display='none'; }
+
+  const isNarrator = s.character === 'Narrateur-ext';
+  dBox.classList.toggle('narrator-mode', isNarrator);
+  dName.textContent = isNarrator ? 'Voix extérieure' : (s.character||'');
+
+  typeText(s.text,()=>{ if(state.autoMode) state.autoTimer=setTimeout(advance,2200); });
+  if(s.text) state.log.push({name: isNarrator ? 'Voix extérieure' : (s.character||'Narrateur'), line:s.text, narrator:isNarrator});
+}
+
+function showChoices(s){
+  dArrow.style.display='none';
+  dChoice.innerHTML='';
+  dChoice.classList.remove('hidden');
+  s.choices.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='choice-btn';
+    b.textContent=c.label;
+    b.onclick=()=>{
+      dChoice.classList.add('hidden');
+      go(c.next);
+    };
+    dChoice.appendChild(b);
+  });
+}
+
+function showEnd(s){
+  el('end-title').textContent = s.title;
+  el('end-desc').textContent = s.desc;
+  endScreen.classList.remove('hidden');
+}
+
+function typeText(text,onDone){
+  clearTimeout(state.typeTimer);
+  state.isTyping=true; dText.textContent=''; let i=0;
+  const tick=()=>{
+    if(i>=text.length){state.isTyping=false;if(onDone)onDone();return;}
+    dText.textContent+=text[i++];
+    state.typeTimer=setTimeout(tick,26);
+  };
+  tick();
+}
+
+function advance(){
+  if(state.isTyping){
+    const s=story[state.index];
+    if(s?.type==='dialogue'){ clearTimeout(state.typeTimer); state.isTyping=false; dText.textContent=s.text; }
+    return;
+  }
+  const next=state.index+1;
+  if(next<story.length) go(next);
+}
+
+// ── Log ──
+function openLog(){
+  logList.innerHTML='';
+  state.log.forEach(e=>{
+    const d=document.createElement('div');
+    d.className='log-entry'+(e.narrator?' is-narrator':'');
+    d.innerHTML=`<span class="log-name">${e.name}</span><span class="log-line">${e.line}</span>`;
+    logList.appendChild(d);
+  });
+  logPanel.classList.remove('hidden');
+}
+
+// ── Save / Load ──
+function flash(btn,msg){ const o=btn.textContent; btn.textContent=msg; setTimeout(()=>{btn.textContent=o;},1500); }
+
+function saveGame(){
+  try{
+    localStorage.setItem('vn_save',JSON.stringify({index:state.index,log:[...state.log]}));
+    flash(btnSave,'Sauvegardé ✓');
+  } catch{ alert('Impossible de sauvegarder.'); }
+}
+
+function loadGame(){
+  try{
+    const r=localStorage.getItem('vn_save');
+    if(!r){alert('Aucune sauvegarde.');return;}
+    const sl=JSON.parse(r);
+    state.log=sl.log||[];
+    go(sl.index);
+    flash(btnLoad,'Chargé ✓');
+  } catch{ alert('Erreur chargement.'); }
+}
+
+// ── Événements ──
+el('btn-start').onclick=()=>{
+  el('title-screen').classList.add('hidden');
+  el('game-screen').classList.remove('hidden');
+  go(0);
+};
+
+dBox.onclick=()=>{ if(!dChoice.classList.contains('hidden')) return; clearTimeout(state.autoTimer); advance(); };
+
+document.onkeydown=e=>{
+  if(!['Space','ArrowRight','Enter'].includes(e.code)) return;
+  if(el('game-screen').classList.contains('hidden')) return;
+  if(!dChoice.classList.contains('hidden')) return;
+  clearTimeout(state.autoTimer); advance();
+};
+
+btnAuto.onclick=()=>{
+  state.autoMode=!state.autoMode;
+  btnAuto.classList.toggle('active',state.autoMode);
+  if(!state.autoMode) clearTimeout(state.autoTimer);
+  else if(!state.isTyping) state.autoTimer=setTimeout(advance,2200);
+};
+
+el('btn-skip').onclick=()=>{ clearTimeout(state.autoTimer); state.isTyping=false; advance(); };
+el('btn-log').onclick=openLog;
+el('btn-close-log').onclick=()=>logPanel.classList.add('hidden');
+btnSave.onclick=saveGame;
+btnLoad.onclick=loadGame;
+
+el('btn-end-restart').onclick=()=>{
+  state.index=0;
+  state.autoMode=false;
+  state.log=[];
+  endScreen.classList.add('hidden');
+  el('title-screen').classList.remove('hidden');
+};
+</script>
+</body>
+</html>
