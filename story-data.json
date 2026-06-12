@@ -1,0 +1,8 @@
+[
+  {
+    "id": "test_scene",
+    "type": "dialogue",
+    "character": "Test",
+    "text": "Scène persistée"
+  }
+]

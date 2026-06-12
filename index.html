@@ -64,6 +64,42 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
 .tool-btn{padding:.35rem .85rem;font-size:.75rem;font-family:inherit;background:var(--panel);color:var(--muted);border:1px solid var(--border);border-radius:20px;cursor:pointer;backdrop-filter:blur(12px);transition:color .2s,border-color .2s;}
 .tool-btn:hover,.tool-btn.active{color:var(--accent);border-color:var(--accent2)}
 
+/* ── ÉDITEUR RAPIDE ── */
+#editor-panel{position:fixed;inset:0;z-index:60;background:rgba(5,4,12,.94);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:1rem;}
+.editor-card{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:0 20px 70px rgba(0,0,0,.45);}
+.editor-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.1rem;border-bottom:1px solid var(--border);}
+.editor-header h2{font-family:Georgia,serif;font-size:1rem;color:var(--name);}
+.editor-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;}
+.editor-close:hover{color:var(--text);}
+.editor-body{display:grid;gap:.8rem;padding:1rem 1.1rem 1.2rem;}
+.editor-row{display:grid;gap:.25rem;}
+.editor-row label{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.editor-row input,.editor-row textarea,.editor-row select{width:100%;padding:.7rem .8rem;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.04);color:var(--text);font:inherit;resize:vertical;}
+.editor-row textarea{min-height:110px;}
+.editor-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.2rem;}
+.editor-btn{padding:.6rem .95rem;border:1px solid var(--accent2);border-radius:999px;background:transparent;color:var(--accent);cursor:pointer;font:inherit;}
+.editor-btn:hover{background:rgba(140,100,255,.16);}
+.editor-hint{font-size:.82rem;color:var(--muted);line-height:1.6;}
+.editor-choice-list{display:grid;gap:.5rem;}
+.editor-choice-item{display:grid;grid-template-columns:1.3fr .7fr;gap:.5rem;}
+.editor-choice-item input{min-width:0;}
+.editor-manager{display:grid;grid-template-columns:1.05fr .95fr;gap:1rem;}
+.editor-column{display:grid;gap:.75rem;}
+.editor-list,.editor-tree{max-height:260px;overflow:auto;padding-right:.2rem;display:grid;gap:.5rem;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.03);padding:.65rem;}
+.editor-scene-item{display:flex;flex-direction:column;gap:.2rem;text-align:left;padding:.65rem .7rem;border:1px solid transparent;border-radius:10px;background:rgba(255,255,255,.03);color:var(--text);cursor:pointer;}
+.editor-scene-item strong{font-size:.86rem;color:var(--name);} 
+.editor-scene-item span{font-size:.78rem;color:var(--muted);} 
+.editor-scene-item:hover,.editor-scene-item.selected{border-color:var(--accent2);background:rgba(140,100,255,.13);} 
+.editor-empty,.tree-empty{font-size:.82rem;color:var(--muted);padding:.4rem 0;}
+.tree-list{display:grid;gap:.5rem;}
+.tree-node{display:flex;flex-direction:column;gap:.2rem;padding:.6rem .7rem;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.03);} 
+.tree-node strong{font-size:.8rem;color:var(--name);} 
+.tree-node span{font-size:.75rem;color:var(--muted);} 
+.tree-branches{display:grid;gap:.35rem;margin-left:.7rem;padding-left:.7rem;border-left:1px dashed var(--border);} 
+.tree-branch{font-size:.76rem;color:var(--muted);padding:.2rem 0;}
+@media (max-width: 860px){.editor-manager{grid-template-columns:1fr;}}
+@media (max-width: 640px){.editor-choice-item{grid-template-columns:1fr;}}
+
 /* ── LOG ── */
 #log-panel{position:fixed;inset:0;z-index:50;background:rgba(8,6,20,.96);backdrop-filter:blur(22px);display:flex;flex-direction:column;animation:fadeUp .2s ease both;}
 #log-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.4rem;border-bottom:1px solid var(--border);font-family:Georgia,serif;font-size:1rem;color:var(--name);}
@@ -138,12 +174,86 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
     <button class="tool-btn" id="btn-auto">⏵ Auto</button>
     <button class="tool-btn" id="btn-skip">⏭ Passer</button>
     <button class="tool-btn" id="btn-log">📜 Log</button>
+    <button class="tool-btn" id="btn-editor">✎ Éditeur</button>
     <button class="tool-btn" id="btn-save">💾 Save</button>
     <button class="tool-btn" id="btn-load">📂 Load</button>
   </div>
   <div id="log-panel" class="hidden">
     <div id="log-header"><span>Journal</span><button id="btn-close-log">✕</button></div>
     <div id="log-entries"></div>
+  </div>
+</div>
+
+<div id="editor-panel" class="hidden">
+  <div class="editor-card">
+    <div class="editor-header">
+      <h2>Éditeur rapide</h2>
+      <button id="btn-close-editor" class="editor-close" type="button">✕</button>
+    </div>
+    <div class="editor-body">
+      <div class="editor-manager">
+        <div class="editor-column">
+          <div class="editor-row">
+            <label>Scènes du scénario</label>
+            <div id="editor-scene-list" class="editor-list"></div>
+          </div>
+        </div>
+        <div class="editor-column">
+          <div class="editor-row">
+            <label>Arbre du scénario</label>
+            <div id="editor-tree-view" class="editor-tree"></div>
+          </div>
+        </div>
+      </div>
+      <div class="editor-row">
+        <label for="editor-type">Type de scène</label>
+        <select id="editor-type">
+          <option value="dialogue">Dialogue</option>
+          <option value="choice">Choix</option>
+          <option value="end">Fin</option>
+        </select>
+      </div>
+      <div class="editor-row">
+        <label for="editor-id">ID de la scène</label>
+        <input id="editor-id" placeholder="ex : suite_01" />
+      </div>
+      <div id="editor-character-row" class="editor-row">
+        <label for="editor-character">Personnage</label>
+        <input id="editor-character" placeholder="Lou, Narrateur..." />
+      </div>
+      <div id="editor-image-row" class="editor-row">
+        <label for="editor-image">Image (URL)</label>
+        <input id="editor-image" placeholder="https://..." />
+      </div>
+      <div id="editor-background-row" class="editor-row">
+        <label for="editor-background">Fond (URL)</label>
+        <input id="editor-background" placeholder="https://..." />
+      </div>
+      <div id="editor-text-block" class="editor-row">
+        <label for="editor-text">Texte</label>
+        <textarea id="editor-text" placeholder="Écris ici le dialogue ou la narration..."></textarea>
+      </div>
+      <div id="editor-end-block" class="editor-row hidden">
+        <label for="editor-title">Titre de la fin</label>
+        <input id="editor-title" placeholder="Titre de la fin..." />
+      </div>
+      <div id="editor-end-desc-block" class="editor-row hidden">
+        <label for="editor-desc">Description de la fin</label>
+        <textarea id="editor-desc" placeholder="Explique ce que montre la fin..."></textarea>
+      </div>
+      <div id="editor-choice-block" class="editor-row hidden">
+        <label for="editor-choices">Choix (1 par ligne : "Label | nextId")</label>
+        <textarea id="editor-choices" placeholder="Ex : Je reste | suite_rest&#10;Je pars | suite_part"></textarea>
+      </div>
+      <div class="editor-actions">
+        <button id="btn-save-scene" class="editor-btn" type="button">Enregistrer la scène</button>
+        <button id="btn-new-scene" class="editor-btn" type="button">Nouvelle scène</button>
+        <button id="btn-add-scene" class="editor-btn" type="button">Ajouter après la scène courante</button>
+        <button id="btn-add-scene-end" class="editor-btn" type="button">Ajouter à la fin</button>
+        <button id="btn-delete-scene" class="editor-btn" type="button">Supprimer la scène</button>
+      </div>
+      <p id="editor-status" class="editor-hint">Les scènes modifiées sont enregistrées sur le serveur du projet.</p>
+    </div>
   </div>
 </div>
 
@@ -201,7 +311,7 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
 //    propose de recommencer.
 // ════════════════════════════════════════════════════════════
 
-const story = [
+const defaultStory = [
 
   // ── PROLOGUE ──────────────────────────────────────────────
   {
@@ -423,13 +533,62 @@ const story = [
   },
 ];
 
+const storyStorageKey = 'vn_story';
+
+async function loadStoryData(){
+  try{
+    const raw = localStorage.getItem(storyStorageKey);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  } catch {}
+
+  try{
+    const response = await fetch('/api/story');
+    if(response.ok){
+      const fromServer = await response.json();
+      if(Array.isArray(fromServer) && fromServer.length){
+        localStorage.setItem(storyStorageKey, JSON.stringify(fromServer));
+        return fromServer;
+      }
+    }
+  } catch {}
+
+  return defaultStory;
+}
+
+async function saveStoryData(){
+  try{ localStorage.setItem(storyStorageKey, JSON.stringify(story)); } catch {}
+  try{
+    await fetch('/api/story', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(story)
+    });
+  } catch {}
+}
+
+let story = defaultStory;
+
 // ════════════════════════════════════════════════════════════
 //  MOTEUR
 // ════════════════════════════════════════════════════════════
 
 // Index id → position dans story[]
 const idMap = {};
-story.forEach((s,i) => { if(s.id) idMap[s.id]=i; });
+function rebuildIdMap(){
+  Object.keys(idMap).forEach(k => delete idMap[k]);
+  story.forEach((s,i) => { if(s.id) idMap[s.id]=i; });
+}
+
+async function initStory(){
+  story = await loadStoryData();
+  rebuildIdMap();
+  if(!el('game-screen').classList.contains('hidden')) go(0);
+}
+
+initStory();
 
 // État du jeu
 const state = {
@@ -449,9 +608,36 @@ const dChoice  = el('choices-container');
 const logPanel = el('log-panel');
 const logList  = el('log-entries');
 const btnAuto  = el('btn-auto');
+const btnEditor= el('btn-editor');
 const btnSave  = el('btn-save');
 const btnLoad  = el('btn-load');
 const endScreen = el('end-screen');
+const editorPanel = el('editor-panel');
+const btnCloseEditor = el('btn-close-editor');
+const btnSaveScene = el('btn-save-scene');
+const btnNewScene = el('btn-new-scene');
+const btnAddScene = el('btn-add-scene');
+const btnAddSceneEnd = el('btn-add-scene-end');
+const btnDeleteScene = el('btn-delete-scene');
+const editorType = el('editor-type');
+const editorId = el('editor-id');
+const editorCharacter = el('editor-character');
+const editorImage = el('editor-image');
+const editorBackground = el('editor-background');
+const editorText = el('editor-text');
+const editorTitle = el('editor-title');
+const editorDesc = el('editor-desc');
+const editorChoices = el('editor-choices');
+const editorChoiceBlock = el('editor-choice-block');
+const editorEndBlock = el('editor-end-block');
+const editorEndDescBlock = el('editor-end-desc-block');
+const editorTextBlock = el('editor-text-block');
+const editorCharacterRow = el('editor-character-row');
+const editorImageRow = el('editor-image-row');
+const editorBackgroundRow = el('editor-background-row');
+const editorSceneList = el('editor-scene-list');
+const editorTreeView = el('editor-tree-view');
+const editorStatus = el('editor-status');
 
 // ── Navigation ──
 function go(indexOrId){
@@ -555,6 +741,222 @@ function loadGame(){
   } catch{ alert('Erreur chargement.'); }
 }
 
+// ── Éditeur complet ──
+let selectedSceneId = null;
+
+function openEditor(){
+  editorPanel.classList.remove('hidden');
+  refreshSceneList();
+  renderStoryTree();
+  if(selectedSceneId){
+    const scene = story.find(s => s.id === selectedSceneId);
+    if(scene) fillEditorForm(scene);
+    else selectedSceneId = story[0]?.id || null;
+  } else if(story.length){
+    selectScene(story[0].id);
+  } else {
+    resetEditorForm();
+  }
+  setEditorStatus('Modifie, supprime ou ajoute des scènes. Les changements sont sauvegardés.');
+}
+
+function closeEditor(){
+  editorPanel.classList.add('hidden');
+}
+
+function syncEditorMode(){
+  const isChoice = editorType.value === 'choice';
+  const isEnd = editorType.value === 'end';
+  editorChoiceBlock.classList.toggle('hidden', !isChoice);
+  editorTextBlock.classList.toggle('hidden', isChoice || isEnd);
+  editorCharacterRow.classList.toggle('hidden', isEnd);
+  editorImageRow.classList.toggle('hidden', isEnd);
+  editorBackgroundRow.classList.toggle('hidden', isEnd);
+  editorEndBlock.classList.toggle('hidden', !isEnd);
+  editorEndDescBlock.classList.toggle('hidden', !isEnd);
+}
+
+function setEditorStatus(message,isError=false){
+  editorStatus.textContent = message;
+  editorStatus.style.color = isError ? '#ff9fa6' : 'var(--muted)';
+}
+
+function generateSceneId(prefix='scene'){ 
+  const base = `${prefix}_${Math.random().toString(36).slice(2,8)}`;
+  return idMap[base] ? generateSceneId(prefix) : base;
+}
+
+function ensureUniqueId(candidate, ignoreId=null){
+  const base = (candidate || '').trim() || generateSceneId();
+  if(base === ignoreId) return base;
+  return story.some(s => s.id === base && s.id !== ignoreId) ? generateSceneId() : base;
+}
+
+function updateReferences(oldId,newId){
+  story.forEach(scene => {
+    if(scene.type === 'choice' && Array.isArray(scene.choices)){
+      scene.choices = scene.choices.map(choice => choice.next === oldId ? {...choice, next:newId} : choice);
+    }
+  });
+}
+
+function fillEditorForm(scene){
+  editorType.value = scene.type || 'dialogue';
+  editorId.value = scene.id || '';
+  editorCharacter.value = scene.character || '';
+  editorImage.value = scene.image || '';
+  editorBackground.value = scene.background || '';
+  editorText.value = scene.text || '';
+  editorTitle.value = scene.title || '';
+  editorDesc.value = scene.desc || '';
+  editorChoices.value = Array.isArray(scene.choices) ? scene.choices.map(c => `${c.label} | ${c.next}`).join('\n') : '';
+  syncEditorMode();
+}
+
+function resetEditorForm(){
+  selectedSceneId = null;
+  editorType.value = 'dialogue';
+  editorId.value = '';
+  editorCharacter.value = '';
+  editorImage.value = '';
+  editorBackground.value = '';
+  editorText.value = '';
+  editorTitle.value = '';
+  editorDesc.value = '';
+  editorChoices.value = '';
+  syncEditorMode();
+}
+
+function refreshSceneList(){
+  editorSceneList.innerHTML='';
+  if(!story.length){
+    editorSceneList.innerHTML='<div class="editor-empty">Aucune scène pour l’instant.</div>';
+    return;
+  }
+  story.forEach((scene,index)=>{
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='editor-scene-item' + (scene.id === selectedSceneId ? ' selected' : '');
+    const typeLabel = scene.type === 'choice' ? 'Choix' : scene.type === 'end' ? 'Fin' : 'Dialogue';
+    btn.innerHTML = `<strong>${index+1}. ${scene.id}</strong><span>${typeLabel} • ${scene.character || scene.title || 'Scène'}</span>`;
+    btn.onclick = () => selectScene(scene.id);
+    editorSceneList.appendChild(btn);
+  });
+}
+
+function renderStoryTree(){
+  editorTreeView.innerHTML='';
+  if(!story.length){
+    editorTreeView.innerHTML='<div class="tree-empty">Le scénario n’a pas encore de branches à afficher.</div>';
+    return;
+  }
+  const list = document.createElement('div');
+  list.className='tree-list';
+  story.forEach((scene,index)=>{
+    const node = document.createElement('div');
+    node.className='tree-node';
+    const typeLabel = scene.type === 'choice' ? 'Choix' : scene.type === 'end' ? 'Fin' : 'Dialogue';
+    node.innerHTML = `<strong>${index+1}. ${scene.id}</strong><span>${typeLabel}</span>`;
+    list.appendChild(node);
+    if(scene.type === 'choice' && Array.isArray(scene.choices) && scene.choices.length){
+      const branches = document.createElement('div');
+      branches.className='tree-branches';
+      scene.choices.forEach(choice => {
+        const item = document.createElement('div');
+        item.className='tree-branch';
+        item.textContent = `↳ ${choice.label} → ${choice.next}`;
+        branches.appendChild(item);
+      });
+      list.appendChild(branches);
+    }
+  });
+  editorTreeView.appendChild(list);
+}
+
+function selectScene(id){
+  const scene = story.find(s => s.id === id);
+  if(!scene) return;
+  selectedSceneId = scene.id;
+  refreshSceneList();
+  fillEditorForm(scene);
+}
+
+function buildSceneFromEditor(){
+  const type = editorType.value;
+  const id = ensureUniqueId(editorId.value, selectedSceneId);
+  if(type === 'dialogue'){
+    const text = editorText.value.trim();
+    if(!text){ setEditorStatus('Écris un texte avant d’enregistrer cette scène.', true); return null; }
+    return { id, type:'dialogue', character:editorCharacter.value.trim(), image:editorImage.value.trim(), background:editorBackground.value.trim(), text };
+  }
+  if(type === 'choice'){
+    const rawChoices = editorChoices.value.split(/\n+/).map(l=>l.trim()).filter(Boolean);
+    if(rawChoices.length === 0){ setEditorStatus('Ajoute au moins un choix.', true); return null; }
+    const choices = rawChoices.map(line=>{
+      const parts = line.split('|').map(p=>p.trim());
+      const label = parts[0] || 'Choix';
+      const next = parts[1] || generateSceneId('next');
+      return { label, next };
+    });
+    return { id, type:'choice', choices };
+  }
+  const title = editorTitle.value.trim();
+  const desc = editorDesc.value.trim();
+  if(!title || !desc){ setEditorStatus('Ajoute un titre et une description pour cette fin.', true); return null; }
+  return { id, type:'end', title, desc };
+}
+
+async function saveSceneFromEditor(mode='update'){
+  const scene = buildSceneFromEditor();
+  if(!scene) return;
+  const existing = story.find(s => s.id === selectedSceneId);
+  if(existing && mode === 'update'){
+    const oldId = existing.id;
+    const nextId = ensureUniqueId(scene.id, oldId);
+    if(nextId !== oldId) updateReferences(oldId, nextId);
+    const idx = story.findIndex(s => s.id === oldId);
+    story[idx] = { ...scene, id: nextId };
+    selectedSceneId = nextId;
+    setEditorStatus(`Scène mise à jour : ${nextId}`);
+  } else {
+    const insertIndex = mode === 'end' ? story.length : Math.max(0, state.index + 1);
+    const nextId = ensureUniqueId(scene.id);
+    const newScene = { ...scene, id: nextId };
+    story.splice(insertIndex, 0, newScene);
+    selectedSceneId = nextId;
+    state.index = insertIndex;
+    setEditorStatus(`Nouvelle scène ajoutée : ${nextId}`);
+  }
+  rebuildIdMap();
+  refreshSceneList();
+  renderStoryTree();
+  await saveStoryData();
+  if(!el('game-screen').classList.contains('hidden')) {
+    if(selectedSceneId) go(selectedSceneId);
+  }
+}
+
+async function deleteSelectedScene(){
+  if(!selectedSceneId){ setEditorStatus('Sélectionne une scène à supprimer.', true); return; }
+  const targetId = selectedSceneId;
+  if(!confirm('Supprimer cette scène et les références qui pointent vers elle ?')) return;
+  story = story.filter(s => s.id !== targetId);
+  story.forEach(scene => {
+    if(scene.type === 'choice' && Array.isArray(scene.choices)){
+      scene.choices = scene.choices.filter(choice => choice.next !== targetId);
+    }
+  });
+  rebuildIdMap();
+  selectedSceneId = story[0]?.id || null;
+  refreshSceneList();
+  renderStoryTree();
+  if(selectedSceneId) fillEditorForm(story.find(s=>s.id===selectedSceneId));
+  else resetEditorForm();
+  await saveStoryData();
+  setEditorStatus(`Scène supprimée : ${targetId}`);
+  if(!el('game-screen').classList.contains('hidden')) go(Math.min(state.index, story.length - 1));
+}
+
 // ── Événements ──
 el('btn-start').onclick=()=>{
   el('title-screen').classList.add('hidden');
@@ -581,6 +983,15 @@ btnAuto.onclick=()=>{
 el('btn-skip').onclick=()=>{ clearTimeout(state.autoTimer); state.isTyping=false; advance(); };
 el('btn-log').onclick=openLog;
 el('btn-close-log').onclick=()=>logPanel.classList.add('hidden');
+btnEditor.onclick=openEditor;
+btnCloseEditor.onclick=closeEditor;
+editorType.onchange=syncEditorMode;
+syncEditorMode();
+btnSaveScene.onclick=()=>saveSceneFromEditor('update');
+btnNewScene.onclick=()=>{ resetEditorForm(); setEditorStatus('Formulaire vidé. Enregistre pour créer une nouvelle scène.'); };
+btnAddScene.onclick=()=>saveSceneFromEditor('after');
+btnAddSceneEnd.onclick=()=>saveSceneFromEditor('end');
+btnDeleteScene.onclick=deleteSelectedScene;
 btnSave.onclick=saveGame;
 btnLoad.onclick=loadGame;
 
