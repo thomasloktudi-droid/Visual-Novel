@@ -63,10 +63,7 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
 #dialogue-box.narrator-mode{border-color:rgba(140,138,168,.35);box-shadow:0 2px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(140,138,168,.12);}
 #dialogue-box.narrator-mode::before{background:linear-gradient(90deg,transparent 0%,var(--narrator) 30%,#b8b6d0 60%,transparent 100%);}
 #dialogue-box.narrator-mode #character-name{color:var(--narrator);border-bottom-color:var(--narrator);font-style:italic;letter-spacing:.14em;}
-#dialogue-box.narrator-mode #dialogue-text{color:#c4c2da;font-style:italic;font-size:clamp(.88rem,1.8vw,.98rem);}
-#dialogue-box.emotion-high{box-shadow:0 0 0 1px rgba(184,159,255,.25),0 20px 60px rgba(140,100,255,.18);} 
-#dialogue-box.emotion-tension{border-color:rgba(255,150,164,.35);} 
-#dialogue-box.emotion-desire{border-color:rgba(255,195,110,.35);} 
+#dialogue-box.narrator-mode #dialogue-text{color:#c4c2da;font-style:italic;font-size:clamp(.88rem,1.8vw,.98rem);} 
 
 /* ── TOOLBAR ── */
 #toolbar{position:fixed;top:14px;right:14px;display:flex;gap:7px;z-index:20;}
@@ -143,34 +140,34 @@ input[type="range"]{accent-color:var(--accent2);}
   max-width:520px;margin-bottom:1.2rem;
 }
 .branch-tree{
-  width:min(720px,100%);
-  margin:0 0 1.4rem;
-  padding:1rem;
+  width:min(620px,100%);
+  margin:0 0 1.2rem;
+  padding:.9rem;
   border:1px solid var(--border);
-  border-radius:16px;
-  background:rgba(255,255,255,.03);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
   display:grid;
-  gap:.7rem;
+  gap:.55rem;
   text-align:left;
 }
-.branch-tree-header{display:grid;gap:.25rem;margin-bottom:.2rem;}
-.branch-tree-header h3{font-family:Georgia,serif;font-size:1rem;color:var(--name);}
-.branch-tree-header p{font-size:.8rem;color:var(--muted);line-height:1.5;}
+.branch-tree-header{display:grid;gap:.2rem;margin-bottom:.2rem;}
+.branch-tree-header h3{font-family:Georgia,serif;font-size:.95rem;color:var(--name);}
+.branch-tree-header p{font-size:.78rem;color:var(--muted);line-height:1.45;}
 .branch-node{
-  padding:.8rem .9rem;
-  border-radius:12px;
-  background:rgba(140,100,255,.08);
-  border:1px solid rgba(184,159,255,.16);
+  padding:.7rem .8rem;
+  border-radius:10px;
+  background:rgba(140,100,255,.06);
+  border:1px solid rgba(184,159,255,.12);
   display:grid;
-  gap:.45rem;
+  gap:.35rem;
 }
-.branch-node.alt{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08);opacity:.75;}
-.branch-node-label{font-size:.73rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);}
-.branch-node-title{font-size:.95rem;color:var(--text);font-weight:600;}
-.branch-node-desc{font-size:.82rem;color:var(--muted);line-height:1.5;}
-.branch-node-choice{padding:.5rem .65rem;border-radius:10px;background:rgba(255,255,255,.05);color:var(--text);font-size:.86rem;}
-.branch-node-choice.current{background:linear-gradient(135deg,rgba(184,159,255,.24),rgba(124,92,204,.18));border:1px solid rgba(184,159,255,.3);} 
-.branch-node-choice.alt{color:rgba(255,255,255,.45);background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);} 
+.branch-node.alt{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.06);opacity:.8;}
+.branch-node-label{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);}
+.branch-node-title{font-size:.9rem;color:var(--text);font-weight:600;}
+.branch-node-desc{font-size:.8rem;color:var(--muted);line-height:1.45;}
+.branch-node-choice{padding:.45rem .55rem;border-radius:8px;background:rgba(255,255,255,.04);color:var(--text);font-size:.82rem;}
+.branch-node-choice.current{background:rgba(184,159,255,.16);border:1px solid rgba(184,159,255,.26);} 
+.branch-node-choice.alt{color:rgba(255,255,255,.45);background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);} 
 #btn-end-restart{
   padding:.7rem 2.4rem;font-size:.85rem;font-family:inherit;
   letter-spacing:.14em;text-transform:uppercase;
@@ -236,12 +233,6 @@ input[type="range"]{accent-color:var(--accent2);}
     </div>
     <div id="choices-container" class="hidden"></div>
   </div>
-  <div id="memory-panel" class="memory-panel hidden">
-    <div class="memory-title">Résonance émotionnelle</div>
-    <div class="memory-metric"><span>Confiance</span><div class="memory-bar"><i id="memory-trust"></i></div></div>
-    <div class="memory-metric"><span>Tension</span><div class="memory-bar"><i id="memory-tension"></i></div></div>
-    <div class="memory-metric"><span>Désir</span><div class="memory-bar"><i id="memory-desire"></i></div></div>
-  </div>
   <div id="toolbar">
     <button class="tool-btn" id="btn-auto">⏵ Auto</button>
     <button class="tool-btn" id="btn-skip">⏭ Passer</button>
@@ -259,7 +250,6 @@ input[type="range"]{accent-color:var(--accent2);}
 <div id="end-screen" class="hidden">
   <h1 id="end-title"></h1>
   <p id="end-desc"></p>
-  <div id="end-branch-tree" class="branch-tree"></div>
   <button id="btn-end-restart"><span>Recommencer</span></button>
 </div>
 
@@ -472,173 +462,24 @@ const defaultStoryRaw = [
     text:"« Ça nous fera du bien. » Une proposition qui ressemble à une question, mais qui n'en est pas vraiment une."
   },
 
-  // ── SÉQUENCE DE QUESTIONS À SCORE ───────────────────────
+  // ── CHOIX FINAL SIMPLE ─────────────────────────────────
   {
-    id:"questionnaire_intro", type:"dialogue",
-    character:"Lou",
-    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
-    background:"",
-    text:"Je veux te poser quelques questions. Pas pour te juger, juste pour comprendre comment tu vois tout ça."
-  },
-  {
-    id:"question_1", type:"choice",
+    id:"choix_fin", type:"choice",
     choices:[
-      { label:"Je préfère être honnête avec toi.", next:"question_2", score:2 },
-      { label:"Je ne sais pas encore quoi répondre.", next:"question_2", score:0 },
-      { label:"Je ne veux pas trop m'exposer.", next:"question_2", score:-1 },
+      { label:"Oui, on sort ce soir.", next:"fin_accepte" },
+      { label:"Non, pas ce soir.", next:"fin_refuse" },
     ]
-  },
-  {
-    id:"question_2", type:"choice",
-    choices:[
-      { label:"Tu peux compter sur moi.", next:"question_3", score:2 },
-      { label:"Je suis là, mais je reste prudent.", next:"question_3", score:1 },
-      { label:"Je préfère garder mes distances.", next:"question_3", score:-1 },
-    ]
-  },
-  {
-    id:"question_3", type:"choice",
-    choices:[
-      { label:"Je veux comprendre ce qui se passe vraiment.", next:"question_4", score:2 },
-      { label:"Je veux juste qu'on en parle calmement.", next:"question_4", score:1 },
-      { label:"Je n'aime pas quand ça devient trop lourd.", next:"question_4", score:-1 },
-    ]
-  },
-  {
-    id:"question_4", type:"choice",
-    choices:[
-      { label:"Je t'écoute sans détour.", next:"question_5", score:2 },
-      { label:"Je t'écoute, mais je me méfie.", next:"question_5", score:0 },
-      { label:"Je préfère qu'on change de sujet.", next:"question_5", score:-2 },
-    ]
-  },
-  {
-    id:"question_5", type:"choice",
-    choices:[
-      { label:"Je veux rester près de toi.", next:"question_result", score:2 },
-      { label:"Je veux voir ce qui va arriver.", next:"question_result", score:1 },
-      { label:"Je veux juste garder le contrôle.", next:"question_result", score:-1 },
-    ]
-  },
-  {
-    id:"question_result", type:"dialogue",
-    character:"Narrateur-ext", image:"", background:"",
-    text:"Le dernier silence retient tout ce qui a été dit. La suite dépend maintenant du poids de chaque réponse."
-  },
-  {
-    id:"question_branch", type:"choice",
-    choices:[
-      { label:"Continuer vers la branche tendre", next:"branche_accepte_1" },
-      { label:"Continuer vers la branche ambiguë", next:"branche_refuse_1" },
-      { label:"Continuer vers la branche froide", next:"branche_refuse_1" },
-    ]
-  },
-
-  // ═══ FIL A : "j'accepte" ═══
-  {
-    id:"branche_accepte_1", type:"dialogue",
-    character:"Lou",
-    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
-    background:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80",
-    text:"Voilà, c'est ça que j'aime entendre. On se retrouve dans une heure ?"
-  },
-  {
-    id:"branche_accepte_2", type:"dialogue",
-    character:"", image:"",
-    background:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80",
-    text:"Le café est presque vide à cette heure. Lou est déjà là, un sourire chaleureux aux lèvres — comme si rien ne s'était passé plus tôt."
-  },
-  {
-    id:"branche_accepte_3", type:"dialogue",
-    character:"Lou",
-    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
-    background:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80",
-    text:"Tu vois, c'est ça qui me plaît avec toi. T'es la seule personne avec qui je me sens vraiment moi-même."
-  },
-
-  // Choix réaction (sans impact) à l'intérieur du fil A
-  {
-    id:"choix_reaction_2", type:"choice",
-    choices:[
-      { label:"Sourire et la laisser parler.", next:"reac2_sourire" },
-      { label:"Demander comment s'est passée sa journée.", next:"reac2_question" },
-    ]
-  },
-  {
-    id:"reac2_sourire", type:"dialogue",
-    character:"", image:"", background:"",
-    text:"Un sourire suffit. Lou continue, intarissable, sans vraiment laisser de place pour autre chose."
-  },
-  {
-    id:"reac2_question", type:"dialogue",
-    character:"Lou",
-    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
-    background:"",
-    text:"Oh, la journée ? Bof, sans intérêt. Mais toi, raconte — enfin, après, parce que j'avais encore un truc à te dire…"
-  },
-  {
-    id:"narrateur_3", type:"dialogue",
-    character:"Narrateur-ext", image:"", background:"",
-    text:"La question a existé l'espace d'une phrase, puis a disparu. La conversation, comme souvent, revient vers Lou."
   },
   {
     id:"fin_accepte", type:"end",
     title:"La soirée continue",
-    desc:"La tension du début de soirée s'est dissipée dans la chaleur du moment présent. Rien n'a été résolu — mais ce soir, ça n'a pas eu besoin de l'être. La même scène se rejouera, sous une forme ou une autre, une autre fois."
-  },
-
-  // ═══ FIL B : "je refuse" ═══
-  {
-    id:"branche_refuse_1", type:"dialogue",
-    character:"Lou",
-    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
-    background:"https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=1280&q=80",
-    text:"Épuisé(e) ? Sérieusement ? On se voit jamais et là tu préfères rester chez toi."
-  },
-  {
-    id:"narrateur_4", type:"dialogue",
-    character:"Narrateur-ext", image:"", background:"",
-    text:"Un simple « non » vient de devenir un sujet de discussion. C'est souvent comme ça que ça commence."
-  },
-
-  // Choix réaction (sans impact) à l'intérieur du fil B
-  {
-    id:"choix_reaction_3", type:"choice",
-    choices:[
-      { label:"« Je suis vraiment fatigué(e), ce n'est pas contre toi. »", next:"reac3_explique" },
-      { label:"Ne rien répondre tout de suite.", next:"reac3_silence" },
-    ]
-  },
-  {
-    id:"reac3_explique", type:"dialogue",
-    character:"", image:"", background:"",
-    text:"Vous expliquez, calmement. Les mots sortent, mais vous sentez déjà qu'ils ne suffiront pas."
-  },
-  {
-    id:"reac3_silence", type:"dialogue",
-    character:"", image:"", background:"",
-    text:"Le silence s'étire. À l'autre bout, vous imaginez Lou en train de taper, puis d'effacer, puis de retaper."
-  },
-  {
-    id:"branche_refuse_2", type:"dialogue",
-    character:"Lou",
-    image:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80",
-    background:"https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=1280&q=80",
-    text:"Ok. Ok, je vois. Très bien. Profite de ta soirée tranquille alors."
-  },
-  {
-    id:"narrateur_5", type:"dialogue",
-    character:"Narrateur-ext", image:"", background:"",
-    text:"« Profite. » Le mot sonne comme une porte qu'on referme un peu plus fort que nécessaire."
+    desc:"La soirée reste ouverte, comme un silence qui n'a pas fini de respirer."
   },
   {
     id:"fin_refuse", type:"end",
     title:"Le silence qui suit",
-    desc:"Pour ce soir, vous avez tenu votre position. Le silence qui s'installe n'est pas léger — mais pour une fois, il vous appartient. Demain, la conversation reprendra probablement comme si de rien n'était. Ou pas."
+    desc:"Le moment se referme doucement. Rien n'est réglé, mais la porte reste fermée pour ce soir."
   },
-  ...makePlaceholderScenes('placeholder_a', 40, { character:'Lou', text:'Placeholder dialogue' }),
-  ...makePlaceholderScenes('placeholder_b', 30, { character:'Narrateur-ext', text:'Placeholder narration', image:'', background:'' }),
-  ...makePlaceholderScenes('placeholder_c', 30, { character:'Lou', text:'Placeholder dialogue' }),
 ];
 
 const defaultStory = defaultStoryRaw.map(resolveStoryEntry);
@@ -646,25 +487,7 @@ const defaultStory = defaultStoryRaw.map(resolveStoryEntry);
 const storyStorageKey = 'vn_story';
 
 async function loadStoryData(){
-  try{
-    const response = await fetch('/api/story', { cache: 'no-store' });
-    if(response.ok){
-      const fromServer = await response.json();
-      if(Array.isArray(fromServer) && fromServer.length > 3){
-        localStorage.setItem(storyStorageKey, JSON.stringify(fromServer));
-        return fromServer;
-      }
-    }
-  } catch {}
-
-  try{
-    const raw = localStorage.getItem(storyStorageKey);
-    if(raw){
-      const parsed = JSON.parse(raw);
-      if(Array.isArray(parsed) && parsed.length) return parsed;
-    }
-  } catch {}
-
+  try{ localStorage.removeItem(storyStorageKey); localStorage.removeItem('vn_save'); } catch {}
   return defaultStory;
 }
 
@@ -702,7 +525,7 @@ initStory();
 
 // État du jeu
 const state = {
-  index:0, autoMode:false, autoTimer:null, typeTimer:null, isTyping:false, log:[], memory:{trust:0,tension:0,desire:0}, quizScore:0, branchPath:[],
+  index:0, autoMode:false, autoTimer:null, typeTimer:null, isTyping:false, log:[],
 };
 
 // ── DOM ──
@@ -721,10 +544,6 @@ const btnAuto  = el('btn-auto');
 const btnSave  = el('btn-save');
 const btnLoad  = el('btn-load');
 const endScreen = el('end-screen');
-const memoryPanel = el('memory-panel');
-const memoryTrust = el('memory-trust');
-const memoryTension = el('memory-tension');
-const memoryDesire = el('memory-desire');
 const settingsPanel = el('settings-panel');
 const btnSettings = el('btn-settings');
 const btnCloseSettings = el('btn-close-settings');
@@ -743,92 +562,11 @@ function go(indexOrId){
   if(s.type==='end')      showEnd(s);
 }
 
-function updateMemoryUI(){
-  const values = state.memory;
-  const max = 3;
-  const pct = v => Math.min(100, Math.max(8, ((v + max) / (max * 2)) * 100));
-  memoryTrust.style.width = `${pct(values.trust)}%`;
-  memoryTension.style.width = `${pct(values.tension)}%`;
-  memoryDesire.style.width = `${pct(values.desire)}%`;
-  memoryPanel.classList.toggle('hidden', false);
-
-  const mood = values.trust >= 2 ? 'emotion-high' : values.tension >= 2 ? 'emotion-tension' : values.desire >= 2 ? 'emotion-desire' : '';
-  dBox.classList.remove('emotion-high','emotion-tension','emotion-desire');
-  if(mood) dBox.classList.add(mood);
-}
-
-function applyChoiceImpact(choice){
-  if(!choice?.impact) return;
-  Object.entries(choice.impact).forEach(([key, value]) => {
-    state.memory[key] = Math.max(-3, Math.min(3, (state.memory[key] || 0) + value));
-  });
-  updateMemoryUI();
-}
-
 function resolveSceneText(s){
-  if(s.textVariants){
-    const values = state.memory;
-    if(values.trust >= 2 && s.textVariants.trust) return s.textVariants.trust;
-    if(values.tension >= 2 && s.textVariants.tension) return s.textVariants.tension;
-    if(values.desire >= 2 && s.textVariants.desire) return s.textVariants.desire;
-    return s.textVariants.base || s.text || '';
-  }
   return s.text || '';
 }
 
-function describeBranchStep(step){
-  if(step?.title) return step.title;
-  if(step?.id?.startsWith('question_')) return `Question ${step.id.replace('question_', '')}`;
-  if(step?.id==='question_branch') return 'Branche finale';
-  return (step?.id || '').replace(/_/g, ' ');
-}
-
-function escapeBranchText(value){
-  return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function renderBranchTree(){
-  const container = el('end-branch-tree');
-  if(!state.branchPath.length){
-    container.innerHTML = '<div class="branch-node alt"><div class="branch-node-label">Arbre de branche</div><div class="branch-node-desc">Le parcours joué apparaîtra ici à la fin de la partie.</div></div>';
-    return;
-  }
-
-  const currentEnd = [...state.branchPath].reverse().find(step => step.isEnd);
-  const otherEndings = story.filter(s => s.type === 'end' && s.id !== currentEnd?.id);
-
-  let html = '<div class="branch-tree-header"><h3>Arbre de branche</h3><p>Le chemin joué est mis en valeur ; les autres options restent grisées pour préserver la surprise.</p></div>';
-
-  state.branchPath.forEach(step => {
-    if(step.isEnd){
-      html += `<div class="branch-node current"><div class="branch-node-label">Fin atteinte</div><div class="branch-node-title">${escapeBranchText(step.title)}</div><div class="branch-node-desc">${escapeBranchText(step.desc)}</div></div>`;
-      return;
-    }
-
-    html += `<div class="branch-node"><div class="branch-node-label">${escapeBranchText(describeBranchStep(step))}</div><div class="branch-node-choice current">${escapeBranchText(step.selectedLabel)}</div>`;
-    (step.options || []).filter(option => option !== step.selectedLabel).forEach(option => {
-      html += `<div class="branch-node-choice alt">${escapeBranchText(option)}</div>`;
-    });
-    html += '</div>';
-  });
-
-  if(otherEndings.length){
-    html += '<div class="branch-node alt"><div class="branch-node-label">Autres fins possibles</div>';
-    otherEndings.forEach(end => {
-      html += `<div class="branch-node-choice alt">${escapeBranchText(end.title)}</div>`;
-    });
-    html += '</div>';
-  }
-
-  container.innerHTML = html;
-}
-
 function showDialogue(s){
-  if(s.id==='question_result'){
-    const scoreLabel = state.quizScore >= 6 ? 'tendre' : state.quizScore >= 3 ? 'ambigüe' : 'froide';
-    dText.textContent = `${s.text}\n\nÉvaluation du moment : ${scoreLabel.toUpperCase()} (score ${state.quizScore})`;
-    return;
-  }
   dChoice.classList.add('hidden');
   dArrow.style.display='';
   if(s.background) bg.style.backgroundImage=`url('${s.background}')`;
@@ -854,19 +592,6 @@ function showChoices(s){
     b.textContent=c.label;
     b.onclick=()=>{
       dChoice.classList.add('hidden');
-      applyChoiceImpact(c);
-      if(typeof c.score==='number') state.quizScore += c.score;
-      state.branchPath.push({
-        id:s.id,
-        selectedLabel:c.label,
-        options:s.choices.map(choice => choice.label),
-        isEnd:false,
-      });
-      if(s.id==='question_branch'){
-        const branch = state.quizScore >= 6 ? 'branche_accepte_1' : state.quizScore >= 3 ? 'branche_refuse_1' : 'branche_refuse_1';
-        go(branch);
-        return;
-      }
       go(c.next);
     };
     dChoice.appendChild(b);
@@ -874,12 +599,8 @@ function showChoices(s){
 }
 
 function showEnd(s){
-  if(!state.branchPath.some(step => step.isEnd && step.id === s.id)){
-    state.branchPath.push({ id:s.id, title:s.title, desc:s.desc, isEnd:true });
-  }
   el('end-title').textContent = s.title;
   el('end-desc').textContent = s.desc;
-  renderBranchTree();
   endScreen.classList.remove('hidden');
 }
 
@@ -921,7 +642,7 @@ function flash(btn,msg){ const o=btn.textContent; btn.textContent=msg; setTimeou
 
 function saveGame(){
   try{
-    localStorage.setItem('vn_save',JSON.stringify({index:state.index,log:[...state.log],branchPath:[...state.branchPath],quizScore:state.quizScore}));
+    localStorage.setItem('vn_save',JSON.stringify({index:state.index,log:[...state.log]}));
     flash(btnSave,'Sauvegardé ✓');
   } catch{ alert('Impossible de sauvegarder.'); }
 }
@@ -932,8 +653,6 @@ function loadGame(){
     if(!r){alert('Aucune sauvegarde.');return;}
     const sl=JSON.parse(r);
     state.log=sl.log||[];
-    state.branchPath=sl.branchPath||[];
-    state.quizScore=sl.quizScore||0;
     go(sl.index);
     flash(btnLoad,'Chargé ✓');
   } catch{ alert('Erreur chargement.'); }
@@ -983,8 +702,6 @@ function showTitleScreen(){
   state.index = 0;
   state.autoMode = false;
   state.log = [];
-  state.quizScore = 0;
-  state.branchPath = [];
   startMusic();
 }
 
@@ -994,12 +711,8 @@ function tryLoadSavedGame(){
     if(!raw){ alert('Aucune partie sauvegardée.'); return; }
     const parsed = JSON.parse(raw);
     state.log = parsed.log || [];
-    state.branchPath = parsed.branchPath || [];
-    state.quizScore = parsed.quizScore || 0;
     el('title-screen').classList.add('hidden');
     el('game-screen').classList.remove('hidden');
-    memoryPanel.classList.remove('hidden');
-    updateMemoryUI();
     go(parsed.index || 0);
     startMusic();
   } catch {
@@ -1010,12 +723,8 @@ function tryLoadSavedGame(){
 // ── Événements ──
 el('btn-start').onclick=()=>{
   state.log = [];
-  state.quizScore = 0;
-  state.branchPath = [];
   el('title-screen').classList.add('hidden');
   el('game-screen').classList.remove('hidden');
-  memoryPanel.classList.remove('hidden');
-  updateMemoryUI();
   startMusic();
   go(0);
 };
@@ -1051,8 +760,6 @@ el('btn-end-restart').onclick=()=>{
   state.index=0;
   state.autoMode=false;
   state.log=[];
-  state.quizScore=0;
-  state.branchPath=[];
   endScreen.classList.add('hidden');
   el('title-screen').classList.remove('hidden');
   startMusic();
