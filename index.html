@@ -341,7 +341,24 @@ function c(id, choices, character='Lou', image='https://images.unsplash.com/phot
   return makeScene({ id, type:'choice', character, image, background, choices });
 }
 
-const defaultStory = [
+const storyPresets = {
+  PAIN: {
+    type: 'dialogue',
+    character: 'Lou',
+    image: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80',
+    background: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80',
+    text: 'Le silence devient plus lourd que les mots.'
+  }
+};
+
+function resolveStoryEntry(entry){
+  if(typeof entry === 'string' && storyPresets[entry]){
+    return { ...storyPresets[entry] };
+  }
+  return entry;
+}
+
+const defaultStoryRaw = [
 
   // ── PROLOGUE ──────────────────────────────────────────────
   {
@@ -623,6 +640,8 @@ const defaultStory = [
   ...makePlaceholderScenes('placeholder_b', 30, { character:'Narrateur-ext', text:'Placeholder narration', image:'', background:'' }),
   ...makePlaceholderScenes('placeholder_c', 30, { character:'Lou', text:'Placeholder dialogue' }),
 ];
+
+const defaultStory = defaultStoryRaw.map(resolveStoryEntry);
 
 const storyStorageKey = 'vn_story';
 
