@@ -91,12 +91,17 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
 .editor-scene-item span{font-size:.78rem;color:var(--muted);} 
 .editor-scene-item:hover,.editor-scene-item.selected{border-color:var(--accent2);background:rgba(140,100,255,.13);} 
 .editor-empty,.tree-empty{font-size:.82rem;color:var(--muted);padding:.4rem 0;}
-.tree-list{display:grid;gap:.5rem;}
-.tree-node{display:flex;flex-direction:column;gap:.2rem;padding:.6rem .7rem;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.03);} 
+.tree-list{display:grid;gap:.7rem;}
+.tree-node{position:relative;display:flex;flex-direction:column;gap:.2rem;padding:.65rem .75rem;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.03);} 
+.tree-node::before{content:'';position:absolute;left:-.55rem;top:50%;width:.55rem;height:1px;background:var(--accent2);transform:translateY(-50%);} 
 .tree-node strong{font-size:.8rem;color:var(--name);} 
 .tree-node span{font-size:.75rem;color:var(--muted);} 
-.tree-branches{display:grid;gap:.35rem;margin-left:.7rem;padding-left:.7rem;border-left:1px dashed var(--border);} 
-.tree-branch{font-size:.76rem;color:var(--muted);padding:.2rem 0;}
+.tree-branches{display:grid;gap:.35rem;margin-left:1rem;padding-left:.8rem;border-left:1px dashed var(--accent2);position:relative;} 
+.tree-branches::before{content:'';position:absolute;left:-1px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--accent2),transparent);} 
+.tree-branch{font-size:.76rem;color:var(--muted);padding:.25rem 0;position:relative;padding-left:.45rem;} 
+.tree-branch::before{content:'↳';position:absolute;left:0;top:0;color:var(--accent);} 
+.tree-root{padding-left:0;}
+.tree-root .tree-node::before{display:none;}
 @media (max-width: 860px){.editor-manager{grid-template-columns:1fr;}}
 @media (max-width: 640px){.editor-choice-item{grid-template-columns:1fr;}}
 
@@ -251,6 +256,7 @@ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(
         <button id="btn-add-scene" class="editor-btn" type="button">Ajouter après la scène courante</button>
         <button id="btn-add-scene-end" class="editor-btn" type="button">Ajouter à la fin</button>
         <button id="btn-delete-scene" class="editor-btn" type="button">Supprimer la scène</button>
+        <button id="btn-sync-story" class="editor-btn" type="button">🔄 Synchroniser</button>
       </div>
       <p id="editor-status" class="editor-hint">Les scènes modifiées sont enregistrées sur le serveur du projet.</p>
     </div>
@@ -537,15 +543,7 @@ const storyStorageKey = 'vn_story';
 
 async function loadStoryData(){
   try{
-    const raw = localStorage.getItem(storyStorageKey);
-    if(raw){
-      const parsed = JSON.parse(raw);
-      if(Array.isArray(parsed) && parsed.length) return parsed;
-    }
-  } catch {}
-
-  try{
-    const response = await fetch('/api/story');
+    const response = await fetch('/api/story', { cache: 'no-store' });
     if(response.ok){
       const fromServer = await response.json();
       if(Array.isArray(fromServer) && fromServer.length){
@@ -555,11 +553,18 @@ async function loadStoryData(){
     }
   } catch {}
 
+  try{
+    const raw = localStorage.getItem(storyStorageKey);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  } catch {}
+
   return defaultStory;
 }
 
 async function saveStoryData(){
-  try{ localStorage.setItem(storyStorageKey, JSON.stringify(story)); } catch {}
   try{
     await fetch('/api/story', {
       method: 'POST',
@@ -567,6 +572,7 @@ async function saveStoryData(){
       body: JSON.stringify(story)
     });
   } catch {}
+  try{ localStorage.setItem(storyStorageKey, JSON.stringify(story)); } catch {}
 }
 
 let story = defaultStory;
@@ -619,6 +625,7 @@ const btnNewScene = el('btn-new-scene');
 const btnAddScene = el('btn-add-scene');
 const btnAddSceneEnd = el('btn-add-scene-end');
 const btnDeleteScene = el('btn-delete-scene');
+const btnSyncStory = el('btn-sync-story');
 const editorType = el('editor-type');
 const editorId = el('editor-id');
 const editorCharacter = el('editor-character');
@@ -851,7 +858,7 @@ function renderStoryTree(){
     return;
   }
   const list = document.createElement('div');
-  list.className='tree-list';
+  list.className='tree-list tree-root';
   story.forEach((scene,index)=>{
     const node = document.createElement('div');
     node.className='tree-node';
@@ -864,7 +871,7 @@ function renderStoryTree(){
       scene.choices.forEach(choice => {
         const item = document.createElement('div');
         item.className='tree-branch';
-        item.textContent = `↳ ${choice.label} → ${choice.next}`;
+        item.textContent = `${choice.label} → ${choice.next}`;
         branches.appendChild(item);
       });
       list.appendChild(branches);
@@ -957,6 +964,30 @@ async function deleteSelectedScene(){
   if(!el('game-screen').classList.contains('hidden')) go(Math.min(state.index, story.length - 1));
 }
 
+async function syncStoryFromServer(){
+  try{
+    setEditorStatus('Synchronisation en cours…');
+    const response = await fetch('/api/story', { cache: 'no-store' });
+    if(!response.ok) throw new Error('Impossible de charger depuis le serveur');
+    const fromServer = await response.json();
+    if(Array.isArray(fromServer) && fromServer.length){
+      story = fromServer;
+      rebuildIdMap();
+      selectedSceneId = story[0]?.id || null;
+      refreshSceneList();
+      renderStoryTree();
+      if(selectedSceneId) fillEditorForm(story.find(s => s.id === selectedSceneId));
+      else resetEditorForm();
+      localStorage.setItem(storyStorageKey, JSON.stringify(story));
+      setEditorStatus('Synchronisation réussie.');
+    } else {
+      setEditorStatus('Aucune donnée reçue depuis le serveur.', true);
+    }
+  } catch (error) {
+    setEditorStatus('Échec de la synchronisation.', true);
+  }
+}
+
 // ── Événements ──
 el('btn-start').onclick=()=>{
   el('title-screen').classList.add('hidden');
@@ -992,6 +1023,7 @@ btnNewScene.onclick=()=>{ resetEditorForm(); setEditorStatus('Formulaire vidé. 
 btnAddScene.onclick=()=>saveSceneFromEditor('after');
 btnAddSceneEnd.onclick=()=>saveSceneFromEditor('end');
 btnDeleteScene.onclick=deleteSelectedScene;
+btnSyncStory.onclick=syncStoryFromServer;
 btnSave.onclick=saveGame;
 btnLoad.onclick=loadGame;
 
