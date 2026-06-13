@@ -590,7 +590,9 @@ function showChoices(s){
     const b=document.createElement('button');
     b.className='choice-btn';
     b.textContent=c.label;
-    b.onclick=()=>{
+    b.onclick=(event)=>{
+      event.preventDefault();
+      event.stopPropagation();
       dChoice.classList.add('hidden');
       go(c.next);
     };
@@ -621,6 +623,8 @@ function advance(){
     if(s?.type==='dialogue'){ clearTimeout(state.typeTimer); state.isTyping=false; dText.textContent=s.text; }
     return;
   }
+  const s=story[state.index];
+  if(s?.type==='end') return;
   const next=state.index+1;
   if(next<story.length) go(next);
 }
